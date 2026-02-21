@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2022",
+    "lib": [
+      "ESNext"
+    ],
+    "types": [
+      "node"
+    ],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "isolatedModules": true
+  },
+  "include": [
+    "src"
+  ]
+}
