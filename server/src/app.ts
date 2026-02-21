@@ -7,11 +7,11 @@ const app = express();
 const server = createServer(app);
 
 // Middlewares
-app.use(cors);
+app.use(cors());
 app.use(express.json());
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Feriyo");
+  return res.send("Feriyo");
 });
 
 app.use("/api/users", userRouter);
