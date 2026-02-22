@@ -10,7 +10,7 @@ import {
 
 const usersTable = pgTable("users", {
   userId: integer("user_id").primaryKey().generatedAlwaysAsIdentity(),
-  username: varchar("username", { length: 255 }).notNull(),
+  username: varchar("username", { length: 255 }).notNull().unique(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   passwordHash: varchar("password_hash", { length: 255 }).notNull(),
   avatarUrl: text("avatar_url"),

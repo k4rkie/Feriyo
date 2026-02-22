@@ -24,6 +24,18 @@ const signUpUserSchema = z
     },
   );
 
-export type SignupDataInput = z.infer<typeof signUpUserSchema>;
+export type signupDataInput = z.infer<typeof signUpUserSchema>;
 
-export { signUpUserSchema };
+const loginUserSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required")
+    .email("Please enter a valid email")
+    .toLowerCase(),
+  password: z.string().min(1, "Password is required"),
+});
+
+export type loginDataInput = z.infer<typeof loginUserSchema>;
+
+export { signUpUserSchema, loginUserSchema };
