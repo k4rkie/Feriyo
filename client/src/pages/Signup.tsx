@@ -1,4 +1,11 @@
+
 function Signup() {
+  // const [formData, setFormData] = useState({
+  //   username: "",
+  //   email: "",
+  //   password: "",
+  //   confirmPassword: "",
+  // });
   return (
     <>
       <div className="flex items-center justify-center min-h-screen">
@@ -7,24 +14,49 @@ function Signup() {
             Sign Up
           </h2>
           <form className="space-y-4">
-            <input
-              type="text"
-              placeholder="Username"
-              className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] focus:outline-none focus:ring-2 focus:ring-[#2ACFCF] focus:border-[#2ACFCF]"
-            />
-            <input
-              type="email"
-              placeholder="Email"
-              className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] focus:outline-none focus:ring-2 focus:ring-[#2ACFCF] focus:border-[#2ACFCF]"
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] focus:outline-none focus:ring-2 focus:ring-[#2ACFCF] focus:border-[#2ACFCF]"
-            />
+            <div>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                placeholder="Username"
+                className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] focus:outline-none focus:ring-2 focus:ring-[#2ACFCF] focus:border-[#2ACFCF]"
+              />
+            </div>
+
+            <div>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="Email"
+                className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] focus:outline-none focus:ring-2 focus:ring-[#2ACFCF] focus:border-[#2ACFCF]"
+              />
+            </div>
+
+            <div>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Password"
+                className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] focus:outline-none focus:ring-2 focus:ring-[#2ACFCF] focus:border-[#2ACFCF]"
+              />
+            </div>
+
+            <div>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                placeholder="Confirm Password"
+                className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] focus:outline-none focus:ring-2 focus:ring-[#2ACFCF] focus:border-[#2ACFCF]"
+              />
+            </div>
+
             <button
               type="submit"
-              className="w-full bg-[#2ACFCF] text-[#111111] px-4 py-2 rounded hover:bg-[#26BABA] transition-colors duration-300 cursor-pointer"
+              className="w-full mt-2 bg-[#2ACFCF] text-[#111111] px-4 py-2 rounded hover:bg-[#26BABA] transition-colors duration-300 cursor-pointer"
             >
               Sign Up
             </button>

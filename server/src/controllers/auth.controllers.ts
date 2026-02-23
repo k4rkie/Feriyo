@@ -1,16 +1,13 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import {
   signUpUserSchema,
   loginUserSchema,
 } from "../validators/auth.validator.js";
 import { signUpUser, loginUser } from "../services/auth.services.js";
-import path from "node:path/posix";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { generateAccessToken } from "../utils/jwt.js";
 
-const signupController = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+const signupController = async (req: Request, res: Response) => {
   const result = signUpUserSchema.safeParse(req.body);
 
   if (!result.success) {
@@ -41,11 +38,7 @@ const signupController = async (
   }
 };
 
-const loginController = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+const loginController = async (req: Request, res: Response) => {
   const result = loginUserSchema.safeParse(req.body);
 
   if (!result.success) {
@@ -95,6 +88,58 @@ const refreshController = (req: Request, res: Response) => {
       error: null,
     });
   }
+
+  try {
+    const decodedPayload = jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET!,
+    ) as JwtPayload;
+
+    const userId = Number(decodedPayload.sub);
+
+    if (!userId || isNaN(userId)) {
+      return res.status(403).json({ message: "Invalid token payload" });
+    }
+
+    const accessToken = generateAccessToken(userId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Access Token refreshed",
+      data: {
+        accessToken,
+      },
+      error: null,
+    });
+  } catch (error: any) {
+    return res.status(403).json({
+      success: false,
+      message: "Session expired or invalid",
+      data: null,
+      error: error.message,
+    });
+  }
 };
 
-export { signupController, loginController };
+const logoutController = (req: Request, res: Response) => {
+  res.clearCookie("refreshToken", {
+    path: "/api/auth",
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: true,
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: "Logged out successfully",
+    data: null,
+    error: null,
+  });
+};
+
+export {
+  signupController,
+  loginController,
+  refreshController,
+  logoutController,
+};

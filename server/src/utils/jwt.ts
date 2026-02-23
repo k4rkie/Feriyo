@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 
 const generateAccessToken = (userId: number) => {
   const accessToken = jwt.sign(
-    { sub: userId },
+    { sub: String(userId) },
     process.env.ACCESS_TOKEN_SECRET!,
     { expiresIn: "15m" },
   );
@@ -12,7 +12,7 @@ const generateAccessToken = (userId: number) => {
 
 const generateRefreshToken = (userId: number) => {
   const refreshToken = jwt.sign(
-    { sub: userId },
+    { sub: String(userId) },
     process.env.REFRESH_TOKEN_SECRET!,
     { expiresIn: "7d" },
   );
