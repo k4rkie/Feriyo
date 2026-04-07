@@ -4,3 +4,12 @@ body {
   background-color: #111111;
   font-family: "Lexend Deca", sans-serif;
 }
+
+input.price-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number].price-input {
+  -moz-appearance: textfield;
+}

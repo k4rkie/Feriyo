@@ -4,6 +4,8 @@ import {
   createListingContorller,
   getListingsController,
   getListingByIdController,
+  deleteListingContorller,
+  editListingController,
 } from "../controllers/listing.controllers.js";
 import multer from "multer";
 import { protect } from "../middlewares/auth.middleware.js";
@@ -36,5 +38,12 @@ listingRouter.post(
   createListingContorller,
 );
 listingRouter.get("/:listingId", getListingByIdController);
+listingRouter.put(
+  "/:listingId",
+  protect,
+  upload.array("newListingImages", 5),
+  editListingController,
+);
+listingRouter.delete("/:listingId", protect, deleteListingContorller);
 
 export default listingRouter;

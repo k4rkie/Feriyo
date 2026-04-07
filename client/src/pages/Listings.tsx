@@ -20,20 +20,26 @@ type ListingData = {
 
 function Listings() {
   const [listings, setListings] = useState<ListingData[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchListings = async () => {
       try {
         const response = await fetch("http://localhost:8080/api/listings");
         const result = await response.json();
-        console.log("Fetched listings:", result.data);
         setListings(result.data);
       } catch (error) {
         console.error("Failed to load listings", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchListings();
   }, []);
+
+  if (loading) {
+    return <div className="p-8 text-[#A1A1A1]">Loading listing details...</div>;
+  }
 
   return (
     <div>

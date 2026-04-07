@@ -6,12 +6,18 @@ import {
   createListingSchema,
   type createListingInput,
 } from "../validators/listings.validator.ts";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowUpTrayIcon } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
 
+type previewImage = {
+  id: string;
+  file: File;
+  imgUrl: string;
+};
+
 function CreateListing() {
-  const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
+  const [previewImages, setPreviewImages] = useState<previewImage[]>([]);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const {
     register,
@@ -21,14 +27,23 @@ function CreateListing() {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(createListingSchema),
+    mode: "onSubmit",
   });
 
   const auth = useAuth();
   const navigate = useNavigate();
 
   if (!auth.isAuthLoading && !auth.user) {
-    return <Navigate to="/login" replace />;
+    <Navigate to="/login" replace />;
   }
+
+  useEffect(() => {
+    setValue(
+      "listingImages",
+      previewImages.map((img) => img.file),
+      { shouldValidate: false },
+    );
+  }, [previewImages, setValue]);
 
   const handleFormSubmit: SubmitHandler<createListingInput> = async (data) => {
     const formData = new FormData();
@@ -76,7 +91,7 @@ function CreateListing() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-10">
+    <div className="max-w-6xl mx-auto py-10">
       <h2 className="text-3xl font-bold mb-6 text-center text-[#E5E5E5]">
         Create Listing
       </h2>
@@ -122,24 +137,22 @@ function CreateListing() {
               <p className="text-red-500">{errors.description.message}</p>
             )}
           </div>
+
           {/* Price */}
           <div>
             <label
               htmlFor="price"
               className="block text-sm font-medium mb-1 text-[#E5E5E5]"
             >
-              Price
+              Price (NRP)
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#A1A1A1]">
-                NRP
-              </span>
               <input
                 {...register("price", { valueAsNumber: true })}
                 type="number"
                 id="price"
                 placeholder="Enter price"
-                className="w-full pl-12 pr-4 py-2 rounded-md border border-[#2A2A2A] bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] appearance-none focus:outline-none focus:ring-0"
+                className="price-input w-full pl-4 pr-4 py-2 rounded-md border border-[#2A2A2A] bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] appearance-none focus:outline-none focus:ring-0"
               />
 
               {errors.price && (
@@ -185,6 +198,7 @@ function CreateListing() {
               <option value="education">Education</option>
               <option value="fashion">Fashion</option>
               <option value="furniture">Furniture</option>
+              <option value="vehicle">Vehicle</option>
               <option value="others">Others...</option>
             </select>
 
@@ -232,15 +246,19 @@ function CreateListing() {
             accept="image/png, image/jpeg, image/webp"
             onChange={(e) => {
               const files = Array.from(e.target.files ?? []);
-              setValue("listingImages", files, { shouldValidate: true });
-              const previewUrls = files.map((file) =>
-                URL.createObjectURL(file),
-              );
-              setImagePreviewUrls(previewUrls);
+              let images: previewImage[] = [];
+              images = files.map((file) => {
+                return {
+                  id: crypto.randomUUID(),
+                  file: file,
+                  imgUrl: URL.createObjectURL(file),
+                };
+              });
+              setPreviewImages((prev) => [...prev, ...images]);
             }}
           />
           <button
-            className="w-full h-full border-2 border-[#2A2A2A] rounded-md border-dotted text-[#E5E5E5] cursor-pointer"
+            className="w-full h-full border-2 border-[#2A2A2A] hover:border-[#a1a1a1] rounded-md border-dotted text-[#E5E5E5] cursor-pointer"
             type="button"
             onClick={() => imageInputRef.current?.click()}
           >
@@ -250,20 +268,27 @@ function CreateListing() {
             </span>
           </button>
 
-          {imagePreviewUrls.length !== 0 && imagePreviewUrls.length <= 5 ? (
-            <div className="flex gap-3 flex-wrap w-full mt-4 border-2 border-[#2A2A2A] rounded-md border-dotted p-2">
-              {imagePreviewUrls.map((imgUrl) => (
+          {previewImages.length !== 0 ? (
+            <div className="flex justify-center gap-3 w-full mt-4 border-2 border-[#2A2A2A] rounded-md border-dotted p-2">
+              {previewImages.map((previewImage) => (
                 <div
-                  key={imgUrl}
-                  className="relative w-24 h-24 rounded-md overflow-hidden border border-[#2A2A2A]"
+                  key={previewImage.id}
+                  className="relative w-20 h-20 rounded-md overflow-hidden border border-[#2A2A2A]"
                 >
                   <img
-                    src={imgUrl}
+                    src={previewImage.imgUrl}
                     alt="preview"
                     className="w-full h-full object-cover"
                   />
                   <button
                     type="button"
+                    onClick={() => {
+                      setPreviewImages((prevImages) =>
+                        prevImages.filter(
+                          (image) => image.id !== previewImage.id,
+                        ),
+                      );
+                    }}
                     className="absolute top-1 right-1 h-6 w-6 rounded-full bg-black/70 text-white text-xs font-bold opacity-0 transition-opacity duration-200 hover:opacity-100"
                   >
                     ×
@@ -286,7 +311,13 @@ function CreateListing() {
           >
             Create
           </button>
-          <button className="w-full px-4 py-2 border rounded-md bg-[#1A1A1A] text-[#E5E5E5] border-[#E5E5E5] hover:border-[#A1A1A1] hover:text-[#A1A1A1]  transition-colors duration-300 cursor-pointer">
+          <button
+            type="button"
+            className="w-full px-4 py-2 border rounded-md bg-[#1A1A1A] text-[#E5E5E5] border-[#E5E5E5] hover:border-[#A1A1A1] hover:text-[#A1A1A1]  transition-colors duration-300 cursor-pointer"
+            onClick={() => {
+              navigate("/listings");
+            }}
+          >
             Cancel
           </button>
         </div>

@@ -89,7 +89,7 @@ const Sidebar = () => {
           ),
         )}
         <Link
-          to="/create"
+          to="/listings/create"
           className="flex items-center px-4 py-2 rounded-md hover:bg-[#1A1A1A] transition-colors w-full text-left"
         >
           <span className="text-[#2ACFCF] mr-4">

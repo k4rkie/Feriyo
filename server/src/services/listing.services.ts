@@ -1,8 +1,12 @@
 import { eq } from "drizzle-orm";
 import { db } from "../db/db.js";
 import { listingsTable } from "../db/schema.js";
-import type { createListingInput } from "../validators/listings.validator.js";
+import type {
+  createListingInput,
+  editListingInput,
+} from "../validators/listings.validator.js";
 import { getUserInfo } from "./auth.services.js";
+import { NotFoundError, UnauthorizedError } from "../errors/index.js";
 
 type authorInfo = {
   userId: number;
@@ -63,7 +67,7 @@ const createListing = async (
     return `/uploads/listings/images/${image.filename}`;
   });
 
-  const [new_listing] = await db
+  const [newListing] = await db
     .insert(listingsTable)
     .values({
       title,
@@ -87,7 +91,7 @@ const createListing = async (
       imageUrls: listingsTable.imageUrls,
     });
 
-  return new_listing;
+  return newListing;
 };
 
 const getListingById = async (listingId: number) => {
@@ -96,17 +100,117 @@ const getListingById = async (listingId: number) => {
     .from(listingsTable)
     .where(eq(listingsTable.listingId, listingId));
 
-  // let listingsWithUserInfo: getListingsData[] = [];
-  //
-  // async function attachAuthorInfo() {
-  //   const authorInfo = await getUserInfo(listing.authorId);
-  //   listingsWithUserInfo.push({ ...listing, authorInfo });
-  // }
-  // await attachAuthorInfo();
+  if (!listing) {
+    throw new NotFoundError(
+      `Cannot find a listing with the provided ID: ${listingId}`,
+    );
+  }
 
   const authorInfo = await getUserInfo(listing.authorId);
   const listingsWithUserInfo = { ...listing, authorInfo };
   return listingsWithUserInfo;
 };
 
-export { getListings, createListing, getListingById };
+const editListing = async (
+  editListingData: editListingInput,
+  listingId: number,
+  userId: number,
+) => {
+  const {
+    title,
+    description,
+    price,
+    location,
+    category,
+    condition,
+    isSold,
+    newListingImages,
+    removedListingImages,
+  } = editListingData;
+
+  const [existingListing] = await db
+    .select()
+    .from(listingsTable)
+    .where(eq(listingsTable.listingId, listingId))
+    .limit(1);
+
+  if (!existingListing) {
+    throw new NotFoundError(
+      `Cannot find a listing with the provided ID: ${listingId}`,
+    );
+  }
+
+  if (existingListing.authorId !== userId) {
+    throw new UnauthorizedError(`You are not allowed to edit this listing`);
+  }
+
+  let { imageUrls } = existingListing;
+
+  for (let image of removedListingImages) {
+    imageUrls = imageUrls.filter((url) => url !== image);
+  }
+
+  const newImageUrls = newListingImages.map((image) => {
+    return `/uploads/listings/images/${image.filename}`;
+  });
+
+  imageUrls = [...imageUrls, ...newImageUrls];
+
+  const [editedListing] = await db
+    .update(listingsTable)
+    .set({
+      title,
+      description,
+      price,
+      location,
+      isSold,
+      category,
+      condition,
+      authorId: userId,
+      imageUrls,
+      updatedAt: new Date(),
+    })
+    .where(eq(listingsTable.listingId, listingId))
+    .returning({
+      title: listingsTable.title,
+      description: listingsTable.description,
+      price: listingsTable.price,
+      location: listingsTable.location,
+      isSold: listingsTable.isSold,
+      category: listingsTable.category,
+      condition: listingsTable.condition,
+      imageUrls: listingsTable.imageUrls,
+    });
+
+  return editedListing;
+};
+
+const deleteListing = async (listingId: number, userId: number) => {
+  const [existingListing] = await db
+    .select()
+    .from(listingsTable)
+    .where(eq(listingsTable.listingId, listingId))
+    .limit(1);
+
+  if (!existingListing) {
+    throw new NotFoundError(
+      `Cannot find a listing with the provided ID: ${listingId}`,
+    );
+  }
+
+  if (existingListing.authorId !== userId) {
+    throw new UnauthorizedError(`You are not allowed to delete this listing`);
+  }
+
+  await db.delete(listingsTable).where(eq(listingsTable.listingId, listingId));
+
+  return true;
+};
+
+export {
+  getListings,
+  createListing,
+  getListingById,
+  editListing,
+  deleteListing,
+};

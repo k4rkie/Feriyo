@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
 
 type AuthorInfo = {
   userId: number;
@@ -25,6 +27,11 @@ function ListingDetail() {
   const [listing, setListing] = useState<ListingDetailData | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
+  const [isUserAuthor, setIsUserAuthor] = useState(false);
+
+  const auth = useAuth();
+  const navigate = useNavigate();
+  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(listing?.authorInfo.username ?? "User")}&background=4f46e5&color=fff&size=128`;
 
   useEffect(() => {
     if (!listingId) return;
@@ -35,7 +42,6 @@ function ListingDetail() {
           `http://localhost:8080/api/listings/${listingId}`,
         );
         const result = await response.json();
-        console.log(result.data);
         setListing(result.data || null);
       } catch (error) {
         console.error("Unable to load listing detail", error);
@@ -46,6 +52,12 @@ function ListingDetail() {
 
     fetchListing();
   }, [listingId]);
+
+  useEffect(() => {
+    if (auth.user && listing) {
+      setIsUserAuthor(auth.user.userId === listing.authorInfo.userId);
+    }
+  }, [auth.user, listing]);
 
   if (loading) {
     return <div className="p-8 text-[#A1A1A1]">Loading listing details...</div>;
@@ -60,6 +72,29 @@ function ListingDetail() {
         </Link>
       </div>
     );
+  }
+
+  async function handleDelete() {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/listings/${listingId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+          headers: {
+            Authorization: `Bearer ${auth.accessToken}`,
+          },
+        },
+      );
+      const result = await response.json();
+      if (!response.ok) {
+        return toast.error(`${result.error}`);
+      }
+      navigate("/listings");
+      toast.success(`${result.message}`);
+    } catch (error) {
+      return toast.error("Something went wrong");
+    }
   }
 
   return (
@@ -78,11 +113,31 @@ function ListingDetail() {
               listing.condition.slice(1)}{" "}
           </p>
         </div>
-        <span
-          className={`inline-block px-4 py-1.5 rounded-xl text-sm font-semibold ${listing.isSold ? "bg-red-500 text-white" : "bg-green-500 text-white"}`}
-        >
-          {listing.isSold ? "Sold" : "Available"}
-        </span>
+
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+          {isUserAuthor ? (
+            <div className="flex gap-2">
+              <Link
+                to={`/listings/edit/${listingId}`}
+                className="px-4 py-1.5 rounded-md bg-[#2ACFCF] text-[#111111] text-sm font-medium hover:bg-[#26BABA] transition-colors"
+              >
+                Edit
+              </Link>
+              <button
+                type="button"
+                className="px-4 py-1.5 rounded-md bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-colors"
+                onClick={handleDelete}
+              >
+                Delete
+              </button>
+            </div>
+          ) : null}
+          <span
+            className={`inline-block px-4 py-1.5 rounded-xl text-sm font-semibold ${listing.isSold ? "bg-red-500 text-white" : "bg-green-500 text-white"}`}
+          >
+            {listing.isSold ? "Sold" : "Available"}
+          </span>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
@@ -156,9 +211,10 @@ function ListingDetail() {
             to={`/profile/${listing.authorInfo.userId}`}
             className="flex items-center gap-3 p-3 bg-[#181818] rounded-md hover:bg-[#222222] transition-all"
           >
-            <div className="h-12 w-12 rounded-full bg-[#2A2A2A] overflow-hidden border border-[#2A2A2A] flex items-center justify-center text-xs text-[#A1A1A1]">
-              {listing.authorInfo.username.charAt(0).toUpperCase()}
-            </div>
+            <img
+              src={avatarUrl}
+              className="h-12 w-12 rounded-full bg-[#2A2A2A] overflow-hidden border border-[#2A2A2A] flex items-center justify-center text-xs text-[#A1A1A1]"
+            />
             <div>
               <p className="text-[#E5E5E5] font-semibold">
                 {listing.authorInfo.username}

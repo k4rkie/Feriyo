@@ -38,6 +38,42 @@ const createListingSchema = z.object({
     .max(5, "Maximum 5 images allowed"),
 });
 
-export type createListingInput = z.infer<typeof createListingSchema>;
+const editListingSchema = z.object({
+  title: z.string().trim().min(1, "Please enter the title"),
+  description: z.string().max(1024, "Description too long"),
+  price: z.coerce
+    .number("Price must be a number")
+    .min(1, "Please enter a price"),
+  category: z.enum(
+    ["electronics", "education", "fashion", "furniture", "vehicle", "others"],
+    "Invalid option",
+  ),
+  condition: z.enum(["new", "good", "fair", "old"], "Invalid option"),
+  location: z.string().min(1, "Please enter the location"),
+  isSold: z.boolean("Value must be a boolean"),
+  newListingImages: z
+    .array(
+      z.object({
+        filename: z.string(),
+        originalname: z.string(),
+        mimetype: z
+          .string()
+          .refine(
+            (type) => ACCEPTED_IMAGE_TYPES.includes(type),
+            "Only .jpg, .png, .webp allowed",
+          ),
+        size: z
+          .number()
+          .refine((size) => size <= MAX_FILE_SIZE, "Max image size is 5MB"),
+        path: z.string(),
+      }),
+    )
+    .max(5, "Maximum 5 images allowed")
+    .default([]),
+  removedListingImages: z.array(z.string()).default([]),
+});
 
-export { createListingSchema };
+export type createListingInput = z.infer<typeof createListingSchema>;
+export type editListingInput = z.infer<typeof editListingSchema>;
+
+export { createListingSchema, editListingSchema };

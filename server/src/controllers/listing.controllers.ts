@@ -1,12 +1,18 @@
 import { Request, Response, NextFunction } from "express";
 import {
   createListing,
+  deleteListing,
+  editListing,
   getListingById,
   getListings,
 } from "../services/listing.services.js";
 import multer from "multer";
-import { createListingSchema } from "../validators/listings.validator.js";
+import {
+  createListingSchema,
+  editListingSchema,
+} from "../validators/listings.validator.js";
 import { getUserInfo } from "../services/auth.services.js";
+import { NotFoundError, UnauthorizedError } from "../errors/index.js";
 
 const getListingsController = async (
   req: Request,
@@ -36,8 +42,10 @@ const createListingContorller = async (
   res: Response,
   next: NextFunction,
 ) => {
+  const userId = req.user!.userId;
   const requestData = { ...req.body, listingImages: req.files };
   const result = createListingSchema.safeParse(requestData);
+
   if (!result.success) {
     const { fieldErrors } = result.error.flatten();
     return res.status(400).json({
@@ -49,11 +57,11 @@ const createListingContorller = async (
   }
   console.log(req.files);
   try {
-    const new_listing = await createListing(result.data, req.user!.userId);
+    const new_listing = await createListing(result.data, userId);
     return res.status(201).json({
       success: true,
       message: "New listing created",
-      data: null,
+      data: { new_listing },
       error: null,
     });
   } catch (error) {
@@ -76,21 +84,145 @@ const getListingByIdController = async (
     const listing = await getListingById(listingId);
     return res.status(200).json({
       success: true,
-      message: "New listing created",
+      message: "Listing fetched successfully",
       data: listing,
       error: null,
     });
   } catch (error) {
+    if (error instanceof NotFoundError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: "Listing fetch Error",
+        data: null,
+        error: error.message,
+      });
+    }
     return res.status(400).json({
       success: false,
-      message: "Validation Error",
+      message: "Listing fetch error",
       data: null,
       error: error,
     });
   }
 };
+
+const editListingController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const listingId = Number(req.params.listingId);
+  const userId = req.user!.userId;
+
+  console.log(req.body);
+  const isSold = req.body.isSold === "true" || req.body.isSold === true;
+
+  let removedListingImages = req.body.removedListingImages;
+  if (!removedListingImages) {
+    removedListingImages = [];
+  } else if (typeof removedListingImages === "string") {
+    removedListingImages = [removedListingImages];
+  }
+  req.body = { ...req.body, isSold, removedListingImages };
+
+  console.log(req.body);
+
+  const requestData = { ...req.body, newListingImages: req.files };
+  const result = editListingSchema.safeParse(requestData);
+
+  if (!result.success) {
+    const { fieldErrors } = result.error.flatten();
+    return res.status(400).json({
+      success: false,
+      message: "Validation Error",
+      data: null,
+      error: fieldErrors,
+    });
+  }
+  console.log(req.files);
+  try {
+    const editedListing = await editListing(result.data, listingId, userId);
+    return res.status(201).json({
+      success: true,
+      message: "Listing edited successfully",
+      data: { editedListing },
+      error: null,
+    });
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: "Listing Editing Error",
+        data: null,
+        error: error.message,
+      });
+    }
+
+    if (error instanceof UnauthorizedError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: "Listing Editing Error",
+        data: null,
+        error: error.message,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+      data: null,
+      error: null,
+    });
+  }
+};
+
+const deleteListingContorller = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const listingId = Number(req.params.listingId);
+  const userId = req.user!.userId;
+  try {
+    const listingDeleted = await deleteListing(listingId, userId);
+    res.status(200).json({
+      success: true,
+      message: "Listing deleted!",
+      data: null,
+      error: null,
+    });
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: "Listing Deletion Error",
+        data: null,
+        error: error.message,
+      });
+    }
+
+    if (error instanceof UnauthorizedError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: "Listing Deletion Error",
+        data: null,
+        error: error.message,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+      data: null,
+      error: null,
+    });
+  }
+};
+
 export {
   getListingsController,
   createListingContorller,
   getListingByIdController,
+  editListingController,
+  deleteListingContorller,
 };

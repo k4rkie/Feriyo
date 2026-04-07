@@ -13,6 +13,7 @@ const Navbar = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const handleSearch = () => {};
   const auth = useAuth();
+  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(auth.user?.username)}&background=4f46e5&color=fff&size=128`;
 
   return (
     <nav className="bg-[#111111] text-[#E5E5E5] px-6 py-3 flex items-center justify-between border-b border-[#2A2A2A]">
@@ -55,7 +56,7 @@ const Navbar = () => {
               }}
             >
               <img
-                src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.pinimg.com%2F474x%2F9e%2F83%2F75%2F9e837528f01cf3f42119c5aeeed1b336.jpg%3Fnii%3Dt&f=1&nofb=1&ipt=2c20d3aa05ceab608416a76afd8dc6216bb751e9ffa1070903d355b82338b10d"
+                src={avatarUrl}
                 alt="Profile"
                 className="w-full h-full object-cover"
               />
