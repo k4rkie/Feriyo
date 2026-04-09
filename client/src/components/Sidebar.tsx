@@ -24,6 +24,7 @@ const Sidebar = () => {
         { name: "Fashion", path: "/listings?category=fashion" },
         { name: "Furniture", path: "/listings?category=furniture" },
         { name: "Vehicle", path: "/listings?category=vehicle" },
+        { name: "Others", path: "/listings?category=others" },
       ],
     },
     {

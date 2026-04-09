@@ -20,8 +20,18 @@ const getListingsController = async (
   res: Response,
   next: NextFunction,
 ) => {
+  const category: any =
+    req.query.category === undefined ? "" : String(req.query.category);
+  const search: any =
+    req.query.search === undefined ? "" : String(req.query.search);
+
+  const queryParams = {
+    category,
+    search,
+  };
+
   try {
-    const listings = await getListings();
+    const listings = await getListings(queryParams);
     return res.status(200).json({
       success: true,
       message: "Listings fetched successfully",

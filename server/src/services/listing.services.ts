@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, ilike } from "drizzle-orm";
 import { db } from "../db/db.js";
 import { listingsTable } from "../db/schema.js";
 import type {
@@ -14,6 +14,16 @@ type authorInfo = {
   email: string;
 };
 
+type listingsData = {
+  listingId: number;
+  title: string;
+  description: string | null;
+  price: number;
+  isSold: boolean;
+  authorId: number;
+  imageUrls: string[];
+};
+
 type getListingsData = {
   listingId: number;
   title: string;
@@ -25,18 +35,63 @@ type getListingsData = {
   authorInfo: authorInfo;
 };
 
-const getListings = async () => {
-  const listings = await db
-    .select({
-      listingId: listingsTable.listingId,
-      title: listingsTable.title,
-      description: listingsTable.description,
-      price: listingsTable.price,
-      isSold: listingsTable.isSold,
-      authorId: listingsTable.authorId,
-      imageUrls: listingsTable.imageUrls,
-    })
-    .from(listingsTable);
+type queryParams = {
+  category: any;
+  search: any;
+};
+
+const getListings = async (queryParams: queryParams) => {
+  const { category, search } = queryParams;
+
+  // console.log("Category:", category);
+  // console.log("search:", search);
+  //
+  // console.log("Category type:", typeof category);
+  // console.log("search type:", typeof search);
+  //
+  // if (category) console.log("Category exists");
+  // if (search) console.log("Search exists");
+
+  let listings: listingsData[];
+  if (category) {
+    listings = await db
+      .select({
+        listingId: listingsTable.listingId,
+        title: listingsTable.title,
+        description: listingsTable.description,
+        price: listingsTable.price,
+        isSold: listingsTable.isSold,
+        authorId: listingsTable.authorId,
+        imageUrls: listingsTable.imageUrls,
+      })
+      .from(listingsTable)
+      .where(eq(listingsTable.category, category));
+  } else if (search) {
+    listings = await db
+      .select({
+        listingId: listingsTable.listingId,
+        title: listingsTable.title,
+        description: listingsTable.description,
+        price: listingsTable.price,
+        isSold: listingsTable.isSold,
+        authorId: listingsTable.authorId,
+        imageUrls: listingsTable.imageUrls,
+      })
+      .from(listingsTable)
+      .where(ilike(listingsTable.title, `%${search}%`));
+  } else {
+    listings = await db
+      .select({
+        listingId: listingsTable.listingId,
+        title: listingsTable.title,
+        description: listingsTable.description,
+        price: listingsTable.price,
+        isSold: listingsTable.isSold,
+        authorId: listingsTable.authorId,
+        imageUrls: listingsTable.imageUrls,
+      })
+      .from(listingsTable);
+  }
 
   let listingsWithUserInfo: getListingsData[] = [];
   async function attachAuthorInfo() {
@@ -213,7 +268,7 @@ const myListings = async (userId: number) => {
       .select()
       .from(listingsTable)
       .where(eq(listingsTable.authorId, userId));
-    console.log("My listings:", myListings);
+
     if (!myListings) {
       throw new NotFoundError(`You currently no active listings`);
     }

@@ -60,7 +60,7 @@ function MyListings() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-5 text-[#E5E5E5]">All Listings</h1>
+      <h1 className="text-3xl font-bold mb-5 text-[#E5E5E5]">My Listings</h1>
       {listings.length === 0 ? (
         <div className="text-[#A1A1A1]">No listings found.</div>
       ) : (

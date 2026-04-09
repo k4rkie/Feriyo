@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   MagnifyingGlassIcon,
   ChatBubbleBottomCenterTextIcon,
@@ -6,12 +6,22 @@ import {
 } from "@heroicons/react/24/outline";
 import { useAuth } from "../context/AuthContext";
 import ProfileDrowpdown from "./ProfileDrowpdown";
-import { useState } from "react";
-import toast from "react-hot-toast";
+import { useRef, useState } from "react";
 
 const Navbar = () => {
   const [showDropdown, setShowDropdown] = useState(false);
-  const handleSearch = () => {};
+  const navigate = useNavigate();
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const handleSearch = (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (searchInputRef.current) {
+      const query = searchInputRef.current.value;
+      searchInputRef.current.blur();
+      if (query.trim()) {
+        navigate(`/listings?search=${encodeURIComponent(query)}`);
+      }
+    }
+  };
   const auth = useAuth();
   const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(auth.user?.username)}&background=4f46e5&color=fff&size=128`;
 
@@ -26,11 +36,11 @@ const Navbar = () => {
         <input
           type="text"
           placeholder="Search..."
+          ref={searchInputRef}
           className="w-75 px-4 py-2 rounded-md bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] focus:outline-none focus:ring-2 focus:ring-[#2ACFCF] focus:border-[#2ACFCF]"
         />
         <button
-          type="button"
-          onClick={() => toast.success("Searched")}
+          type="submit"
           className="ml-2 px-3 py-2 rounded-md bg-[#2ACFCF] text-[#111111] hover:bg-[#26BABA] transition-colors duration-300 cursor-pointer"
         >
           <MagnifyingGlassIcon className="w-5 h-5" />
