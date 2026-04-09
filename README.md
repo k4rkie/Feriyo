@@ -1,10 +1,13 @@
-# Feriyo
-
+<div align="center">
+  <img src="./client/public/feriyo.svg" alt="Feriyo Logo" width="150" height="auto" />
+  <p>
 Feriyo is a second-hand marketplace platform where users can list, browse, and purchase used items.
+</p>
+</div>
 
 The goal is to build a simple, reliable platform that makes buying and selling second-hand goods easy and transparent.
 
-🚧This project is currently a work in progress.
+> 🚧This project is currently a work in progress.
 
 ---
 
@@ -60,7 +63,7 @@ Create a `.env` file in the server directory:
 DATABASE_URL=your_database_url
 ```
 
-Run the necessary migrations and 
+Run the necessary migrations and
 
 ```bash
 npm run dev
@@ -73,5 +76,3 @@ cd client
 npm install
 npm run dev
 ```
-
-
