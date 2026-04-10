@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import ListingCard from "../components/ListingCard";
 import { useSearchParams } from "react-router-dom";
-import { set } from "react-hook-form";
 
 type authorInfo = {
   userId: number;
@@ -21,7 +20,7 @@ type ListingData = {
 };
 
 function Listings() {
-  const [listings, setListings] = useState<ListingData[]>([]);
+  const [listings, setListings] = useState<ListingData[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [pageHeading, setPageHeading] = useState("All listings");
   const [searchParams] = useSearchParams();
@@ -49,7 +48,7 @@ function Listings() {
       try {
         const response = await fetch(url.toString());
         const result = await response.json();
-        setListings(result.data);
+        setListings(result.data || null);
       } catch (error) {
         console.error("Failed to load listings", error);
       } finally {
@@ -61,6 +60,15 @@ function Listings() {
 
   if (loading) {
     return <div className="p-8 text-[#A1A1A1]">Loading listing details...</div>;
+  }
+
+  if (!listings) {
+    return (
+      <div>
+        <h1 className="text-3xl font-bold mb-5 text-[#E5E5E5]">All listings</h1>
+        <div className="text-[#A1A1A1]">No listings found.</div>
+      </div>
+    );
   }
 
   return (
