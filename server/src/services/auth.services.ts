@@ -82,7 +82,7 @@ const loginUser = async (loginData: loginDataInput) => {
   return { loggedInUser, accessToken, refreshToken };
 };
 
-const getUserInfo = async (userId: number) => {
+const getUserInfo = async (userId: string) => {
   const [user] = await db
     .select({
       userId: usersTable.userId,

@@ -16,16 +16,15 @@ const protect = (req: Request, res: Response, next: NextFunction) => {
 
   const token = authHeader.split(" ")[1];
 
-  console.log(token);
   try {
     const payload = jwt.decode(token);
-    console.log("Decoded (no verify):", payload);
-    console.log("Server time (seconds):", Math.floor(Date.now() / 1000));
+    // console.log("Decoded (no verify):", payload);
+    // console.log("Server time (seconds):", Math.floor(Date.now() / 1000));
     const decodedPayload = jwt.verify(
       token,
       process.env.ACCESS_TOKEN_SECRET!,
     ) as JwtPayload;
-    req.user = { userId: Number(decodedPayload.sub) };
+    req.user = { userId: String(decodedPayload.sub) };
     console.log(decodedPayload);
     next();
   } catch (error: any) {
@@ -39,4 +38,3 @@ const protect = (req: Request, res: Response, next: NextFunction) => {
 };
 
 export { protect };
-

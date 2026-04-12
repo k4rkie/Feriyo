@@ -136,9 +136,9 @@ const refreshController = async (req: Request, res: Response) => {
       process.env.REFRESH_TOKEN_SECRET!,
     ) as JwtPayload;
 
-    const userId = Number(decodedPayload.sub);
+    const userId = decodedPayload.sub;
 
-    if (!userId || isNaN(userId)) {
+    if (!userId) {
       return res.status(403).json({ message: "Invalid token payload" });
     }
 

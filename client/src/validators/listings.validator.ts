@@ -14,7 +14,7 @@ const createListingSchema = z.object({
     "Invalid option",
   ),
   condition: z.enum(["new", "good", "fair", "old"], "Invalid option"),
-  location: z.string().min(1, "Please enter the location"),
+  locationName: z.string().min(1, "Please enter the location"),
   listingImages: z
     .array(
       z
@@ -40,7 +40,7 @@ const editListingSchema = z.object({
     "Invalid option",
   ),
   condition: z.enum(["new", "good", "fair", "old"], "Invalid option"),
-  location: z.string().min(1, "Please enter the location"),
+  locationName: z.string().min(1, "Please enter the location"),
   isSold: z.boolean("Value must be a boolean").default(false),
   newListingImages: z
     .array(

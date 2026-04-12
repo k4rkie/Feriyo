@@ -16,7 +16,6 @@ const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const __filename = url.fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
-    console.log(__dirname);
     const uploadsPath = path.join(__dirname, "../../uploads/listings/images/");
     cb(null, uploadsPath);
   },

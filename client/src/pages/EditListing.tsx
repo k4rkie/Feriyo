@@ -71,10 +71,10 @@ function EditListing() {
         setValue("title", result.data.title);
         setValue("description", result.data.description);
         setValue("price", result.data.price);
-        setValue("location", result.data.location);
+        setValue("locationName", result.data.locationName);
         setValue("category", result.data.category);
         setValue("condition", result.data.condition);
-        setValue("isSold", result.data.isSold);
+        setValue("isSold", result.data.status === "sold" ? true : false);
 
         const existingImagesPreview: previewImage[] = result.data.imageUrls.map(
           (imgUrl: string) => {
@@ -99,7 +99,7 @@ function EditListing() {
     formData.append("title", data.title);
     formData.append("description", data.description);
     formData.append("price", String(data.price));
-    formData.append("location", data.location);
+    formData.append("locationName", data.locationName);
     formData.append("category", data.category);
     formData.append("condition", data.condition);
     formData.append("isSold", String(data.isSold));
@@ -232,15 +232,15 @@ function EditListing() {
                 Location
               </label>
               <input
-                {...register("location")}
+                {...register("locationName")}
                 type="text"
                 id="location"
                 placeholder="Enter Location"
                 className="w-full px-4 py-2 rounded-md border border-[#2A2A2A] bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] focus:outline-none focus:ring-0"
               />
 
-              {errors.location && (
-                <p className="text-red-500">{errors.location.message}</p>
+              {errors.locationName && (
+                <p className="text-red-500">{errors.locationName.message}</p>
               )}
             </div>
             {/* Caetgory */}

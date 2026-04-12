@@ -3,18 +3,18 @@ import ListingCard from "../components/ListingCard";
 import { useSearchParams } from "react-router-dom";
 
 type authorInfo = {
-  userId: number;
+  userId: string;
   username: string;
   email: string;
 };
 
 type ListingData = {
-  listingId: number;
+  listingId: string;
   title: string;
   description: string | null;
   price: number;
-  isSold: boolean;
-  authorId: number;
+  status: string;
+  authorId: string;
   imageUrls: string[];
   authorInfo: authorInfo;
 };
@@ -31,7 +31,10 @@ function Listings() {
       const category = searchParams.get("category");
       const search = searchParams.get("search");
 
-      const url = new URL(`http://localhost:8080/api/listings`);
+      const BASE_URL: string = import.meta.env.VITE_BASE_BACKEND_URL;
+      const endPoint = "api/listings";
+      const url = new URL(endPoint, BASE_URL);
+
       if (category) {
         url.searchParams.append("category", category);
         setPageHeading(

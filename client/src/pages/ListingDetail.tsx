@@ -9,18 +9,18 @@ import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 
 type AuthorInfo = {
-  userId: number;
+  userId: string;
   username: string;
   email: string;
 };
 
 type ListingDetailData = {
-  listingId: number;
+  listingId: string;
   title: string;
   description: string | null;
   price: number;
-  location: string;
-  isSold: boolean;
+  locationName: string;
+  status: string;
   category: string;
   condition: string;
   imageUrls: string[];
@@ -242,12 +242,15 @@ function ListingDetail() {
             </div>
             <div className="rounded-md bg-[#181818] p-3">
               <p className="text-[#A1A1A1]">Location</p>
-              <p className="text-[#E5E5E5] font-semibold">{listing.location}</p>
+              <p className="text-[#E5E5E5] font-semibold">
+                {listing.locationName}
+              </p>
             </div>
             <div className="rounded-md bg-[#181818] p-3">
               <p className="text-[#A1A1A1]">Status</p>
               <p className="text-[#E5E5E5] font-semibold">
-                {listing.isSold ? "Sold" : "Available"}
+                {listing.status.charAt(0).toUpperCase() +
+                  listing.status.slice(1)}
               </p>
             </div>
           </div>

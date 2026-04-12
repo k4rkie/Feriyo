@@ -12,6 +12,5 @@ export const initSocket = (httpServer: any) => {
     // new message
     socket.on("newMessage", (newMessage) => {});
   });
-
   return io;
 };

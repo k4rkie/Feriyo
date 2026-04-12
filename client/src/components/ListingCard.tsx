@@ -2,17 +2,17 @@ import { Link } from "react-router-dom";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
 
 type ListingCardProps = {
-  listingId: number;
+  listingId: string;
   title: string;
   description?: string | null;
   price: number;
-  authorId: number;
+  authorId: string;
   imageUrl: string[];
   authorName: string;
 };
 
 function ListingCard({
-  listingId = -1,
+  listingId = "null",
   title = "Sample title",
   description = "No description available",
   price = 0.99,

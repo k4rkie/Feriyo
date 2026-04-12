@@ -7,7 +7,7 @@ import {
 } from "react";
 
 type User = {
-  userId: number;
+  userId: string;
   username: string;
   email: string;
 };

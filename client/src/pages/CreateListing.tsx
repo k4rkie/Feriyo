@@ -50,7 +50,7 @@ function CreateListing() {
     formData.append("title", data.title);
     formData.append("description", data.description);
     formData.append("price", String(data.price));
-    formData.append("location", data.location);
+    formData.append("locationName", data.locationName);
     formData.append("category", data.category);
     formData.append("condition", data.condition);
     for (let image of data.listingImages) {
@@ -169,15 +169,15 @@ function CreateListing() {
               Location
             </label>
             <input
-              {...register("location")}
+              {...register("locationName")}
               type="text"
               id="location"
               placeholder="Enter Location"
               className="w-full px-4 py-2 rounded-md border border-[#2A2A2A] bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] focus:outline-none focus:ring-0"
             />
 
-            {errors.location && (
-              <p className="text-red-500">{errors.location.message}</p>
+            {errors.locationName && (
+              <p className="text-red-500">{errors.locationName.message}</p>
             )}
           </div>
           {/* Caetgory */}

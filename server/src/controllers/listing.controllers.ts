@@ -14,6 +14,7 @@ import {
 } from "../validators/listings.validator.js";
 import { getUserInfo } from "../services/auth.services.js";
 import { NotFoundError, UnauthorizedError } from "../errors/index.js";
+import { log } from "console";
 
 const getListingsController = async (
   req: Request,
@@ -61,7 +62,7 @@ const createListingContorller = async (
     const { fieldErrors } = result.error.flatten();
     return res.status(400).json({
       success: false,
-      message: "Validation Error",
+      message: "Zod Validation Error",
       data: null,
       error: fieldErrors,
     });
@@ -75,9 +76,10 @@ const createListingContorller = async (
       error: null,
     });
   } catch (error) {
+    console.log(error);
     return res.status(400).json({
       success: false,
-      message: "Validation Error",
+      message: "Something went wrong",
       data: null,
       error: error,
     });
@@ -90,7 +92,7 @@ const getListingByIdController = async (
   next: NextFunction,
 ) => {
   try {
-    const listingId = Number(req.params.listingId);
+    const listingId = String(req.params.listingId);
     const listing = await getListingById(listingId);
     return res.status(200).json({
       success: true,
@@ -121,7 +123,7 @@ const editListingController = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const listingId = Number(req.params.listingId);
+  const listingId = String(req.params.listingId);
   const userId = req.user!.userId;
 
   const isSold = req.body.isSold === "true" || req.body.isSold === true;
@@ -187,7 +189,7 @@ const deleteListingContorller = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const listingId = Number(req.params.listingId);
+  const listingId = String(req.params.listingId);
   const userId = req.user!.userId;
   try {
     const listingDeleted = await deleteListing(listingId, userId);

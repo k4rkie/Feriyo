@@ -9,28 +9,28 @@ import { getUserInfo } from "./auth.services.js";
 import { NotFoundError, UnauthorizedError } from "../errors/index.js";
 
 type authorInfo = {
-  userId: number;
+  userId: string;
   username: string;
   email: string;
 };
 
 type listingsData = {
-  listingId: number;
+  listingId: string;
   title: string;
   description: string | null;
+  status: string;
   price: number;
-  isSold: boolean;
-  authorId: number;
+  authorId: string;
   imageUrls: string[];
 };
 
 type getListingsData = {
-  listingId: number;
+  listingId: string;
   title: string;
   description: string | null;
   price: number;
-  isSold: boolean;
-  authorId: number;
+  status: string;
+  authorId: string;
   imageUrls: string[];
   authorInfo: authorInfo;
 };
@@ -60,7 +60,7 @@ const getListings = async (queryParams: queryParams) => {
         title: listingsTable.title,
         description: listingsTable.description,
         price: listingsTable.price,
-        isSold: listingsTable.isSold,
+        status: listingsTable.status,
         authorId: listingsTable.authorId,
         imageUrls: listingsTable.imageUrls,
       })
@@ -73,7 +73,7 @@ const getListings = async (queryParams: queryParams) => {
         title: listingsTable.title,
         description: listingsTable.description,
         price: listingsTable.price,
-        isSold: listingsTable.isSold,
+        status: listingsTable.status,
         authorId: listingsTable.authorId,
         imageUrls: listingsTable.imageUrls,
       })
@@ -86,7 +86,7 @@ const getListings = async (queryParams: queryParams) => {
         title: listingsTable.title,
         description: listingsTable.description,
         price: listingsTable.price,
-        isSold: listingsTable.isSold,
+        status: listingsTable.status,
         authorId: listingsTable.authorId,
         imageUrls: listingsTable.imageUrls,
       })
@@ -106,13 +106,13 @@ const getListings = async (queryParams: queryParams) => {
 
 const createListing = async (
   createListingData: createListingInput,
-  userId: number,
+  userId: string,
 ) => {
   const {
     title,
     description,
     price,
-    location,
+    locationName,
     category,
     condition,
     listingImages,
@@ -128,8 +128,7 @@ const createListing = async (
       title,
       description,
       price,
-      location,
-      isSold: false,
+      locationName,
       category,
       condition,
       authorId: userId,
@@ -139,8 +138,8 @@ const createListing = async (
       title: listingsTable.title,
       description: listingsTable.description,
       price: listingsTable.price,
-      location: listingsTable.location,
-      isSold: listingsTable.isSold,
+      location: listingsTable.locationName,
+      status: listingsTable.status,
       category: listingsTable.category,
       condition: listingsTable.condition,
       imageUrls: listingsTable.imageUrls,
@@ -149,7 +148,7 @@ const createListing = async (
   return newListing;
 };
 
-const getListingById = async (listingId: number) => {
+const getListingById = async (listingId: string) => {
   const [listing] = await db
     .select()
     .from(listingsTable)
@@ -168,14 +167,14 @@ const getListingById = async (listingId: number) => {
 
 const editListing = async (
   editListingData: editListingInput,
-  listingId: number,
-  userId: number,
+  listingId: string,
+  userId: string,
 ) => {
   const {
     title,
     description,
     price,
-    location,
+    locationName,
     category,
     condition,
     isSold,
@@ -211,16 +210,18 @@ const editListing = async (
 
   imageUrls = [...imageUrls, ...newImageUrls];
 
+  const status = isSold ? "sold" : "available";
+
   const [editedListing] = await db
     .update(listingsTable)
     .set({
       title,
       description,
       price,
-      location,
-      isSold,
+      locationName,
       category,
       condition,
+      status: status,
       authorId: userId,
       imageUrls,
       updatedAt: new Date(),
@@ -230,8 +231,8 @@ const editListing = async (
       title: listingsTable.title,
       description: listingsTable.description,
       price: listingsTable.price,
-      location: listingsTable.location,
-      isSold: listingsTable.isSold,
+      locationName: listingsTable.locationName,
+      status: listingsTable.status,
       category: listingsTable.category,
       condition: listingsTable.condition,
       imageUrls: listingsTable.imageUrls,
@@ -240,7 +241,7 @@ const editListing = async (
   return editedListing;
 };
 
-const deleteListing = async (listingId: number, userId: number) => {
+const deleteListing = async (listingId: string, userId: string) => {
   const [existingListing] = await db
     .select()
     .from(listingsTable)
@@ -262,7 +263,7 @@ const deleteListing = async (listingId: number, userId: number) => {
   return true;
 };
 
-const myListings = async (userId: number) => {
+const myListings = async (userId: string) => {
   try {
     const myListings = await db
       .select()
