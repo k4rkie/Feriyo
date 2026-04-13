@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Navigate, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/AuthProvider.tsx";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import {
   createListingSchema,

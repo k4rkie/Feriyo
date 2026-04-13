@@ -25,7 +25,6 @@ const protect = (req: Request, res: Response, next: NextFunction) => {
       process.env.ACCESS_TOKEN_SECRET!,
     ) as JwtPayload;
     req.user = { userId: String(decodedPayload.sub) };
-    console.log(decodedPayload);
     next();
   } catch (error: any) {
     return res.status(401).json({

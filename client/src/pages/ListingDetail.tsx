@@ -5,7 +5,7 @@ import {
   BookmarkIcon as BookmarkOutline,
 } from "@heroicons/react/24/outline";
 import { BookmarkIcon as BookmarkSolid } from "@heroicons/react/24/solid";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/AuthProvider";
 import toast from "react-hot-toast";
 import ConfirmationModal from "../components/ConfirmationModal";
 
@@ -83,7 +83,7 @@ function ListingDetail() {
     };
 
     fetchListing();
-  }, [listingId]);
+  }, [listingId, auth.user?.userId]);
 
   useEffect(() => {
     if (auth.user && listing) {
@@ -299,7 +299,7 @@ function ListingDetail() {
             </>
           ) : (
             <>
-              <button className="flex justify-center gap-2 w-full px-4 py-2 rounded-md bg-[#2ACFCF] text-[#111111] hover:bg-[#26BABA] transition-colors duration-300">
+              <button className="flex justify-center gap-2 w-full px-4 py-2 rounded-md bg-[#2ACFCF] text-[#111111] hover:bg-[#26BABA] transition-colors duration-300 cursor-pointer">
                 <ChatBubbleBottomCenterTextIcon className="w-6 h-6" />
                 <span>Contact Seller</span>
               </button>

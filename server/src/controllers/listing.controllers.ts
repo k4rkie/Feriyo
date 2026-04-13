@@ -83,7 +83,6 @@ const createListingContorller = async (
       error: null,
     });
   } catch (error) {
-    console.log(error);
     return res.status(400).json({
       success: false,
       message: "Something went wrong",
