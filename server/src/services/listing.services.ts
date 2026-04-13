@@ -1,4 +1,4 @@
-import { eq, ilike } from "drizzle-orm";
+import { count, desc, eq, ilike, sql } from "drizzle-orm";
 import { db } from "../db/db.js";
 import { listingsTable } from "../db/schema.js";
 import type {
@@ -38,17 +38,25 @@ type getListingsData = {
 type queryParams = {
   category: any;
   search: any;
+  page: number;
 };
 
 const getListings = async (queryParams: queryParams) => {
-  const { category, search } = queryParams;
+  const { category, search, page } = queryParams;
+  const pageSize = 32;
+
+  if (page <= 0) {
+    throw new Error("Invalid page number");
+  }
 
   // console.log("Category:", category);
   // console.log("search:", search);
-  //
+  // console.log("page:", page);
+
   // console.log("Category type:", typeof category);
   // console.log("search type:", typeof search);
-  //
+  // console.log("page type:", typeof page);
+
   // if (category) console.log("Category exists");
   // if (search) console.log("Search exists");
 
@@ -65,7 +73,10 @@ const getListings = async (queryParams: queryParams) => {
         imageUrls: listingsTable.imageUrls,
       })
       .from(listingsTable)
-      .where(eq(listingsTable.category, category));
+      .orderBy(desc(listingsTable.createdAt))
+      .where(eq(listingsTable.category, category))
+      .limit(pageSize)
+      .offset((page - 1) * pageSize);
   } else if (search) {
     listings = await db
       .select({
@@ -78,7 +89,10 @@ const getListings = async (queryParams: queryParams) => {
         imageUrls: listingsTable.imageUrls,
       })
       .from(listingsTable)
-      .where(ilike(listingsTable.title, `%${search}%`));
+      .orderBy(desc(listingsTable.createdAt))
+      .where(ilike(listingsTable.title, `%${search}%`))
+      .limit(pageSize)
+      .offset((page - 1) * pageSize);
   } else {
     listings = await db
       .select({
@@ -90,8 +104,14 @@ const getListings = async (queryParams: queryParams) => {
         authorId: listingsTable.authorId,
         imageUrls: listingsTable.imageUrls,
       })
-      .from(listingsTable);
+      .from(listingsTable)
+      .orderBy(desc(listingsTable.createdAt))
+      .limit(pageSize)
+      .offset((page - 1) * pageSize);
   }
+  const [{ totalCount }] = await db
+    .select({ totalCount: count() })
+    .from(listingsTable);
 
   let listingsWithUserInfo: getListingsData[] = [];
   async function attachAuthorInfo() {
@@ -101,7 +121,11 @@ const getListings = async (queryParams: queryParams) => {
     }
   }
   await attachAuthorInfo();
-  return listingsWithUserInfo;
+  return {
+    listingsWithUserInfo,
+    totalCount,
+    totalPages: Math.ceil(totalCount / pageSize),
+  };
 };
 
 const createListing = async (
@@ -224,7 +248,7 @@ const editListing = async (
       status: status,
       authorId: userId,
       imageUrls,
-      updatedAt: new Date(),
+      updatedAt: sql`now()`,
     })
     .where(eq(listingsTable.listingId, listingId))
     .returning({

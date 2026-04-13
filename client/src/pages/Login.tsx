@@ -60,6 +60,7 @@ function Login() {
               type="email"
               placeholder="Email"
               className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] focus:outline-none focus:ring-2 focus:ring-[#2ACFCF] focus:border-[#2ACFCF]"
+              autoComplete="off"
             />
             {errors.email && (
               <p className="text-red-500">{errors.email.message}</p>
@@ -70,7 +71,9 @@ function Login() {
               type="password"
               placeholder="Password"
               className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] focus:outline-none focus:ring-2 focus:ring-[#2ACFCF] focus:border-[#2ACFCF]"
+              autoComplete="off"
             />
+
             {errors.password && (
               <p className="text-red-500">{errors.password.message}</p>
             )}

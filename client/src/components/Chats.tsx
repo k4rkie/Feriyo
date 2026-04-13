@@ -21,7 +21,7 @@ function Chats({ isChatOpen, setIsChatOpen }: Props) {
       {/* Chat Modal */}
       {isChatOpen && (
         <div className="fixed bottom-4 right-4 z-50">
-          <div className="w-96 h-112 bg-[#111111] border border-[#2A2A2A] rounded-lg shadow-lg flex flex-col">
+          <div className="w-120 h-130 bg-[#111111] border border-[#2A2A2A] rounded-lg shadow-lg flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-[#2A2A2A]">
               <h2 className="text-lg font-semibold text-[#E5E5E5]">Messages</h2>
               <button

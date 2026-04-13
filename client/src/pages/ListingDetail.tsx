@@ -7,6 +7,7 @@ import {
 import { BookmarkIcon as BookmarkSolid } from "@heroicons/react/24/solid";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 type AuthorInfo = {
   userId: string;
@@ -36,19 +37,32 @@ function ListingDetail() {
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
   const [isUserAuthor, setIsUserAuthor] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const auth = useAuth();
   const navigate = useNavigate();
   const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(listing?.authorInfo.username ?? "User")}&background=4f46e5&color=fff&size=128`;
 
-  const formatDate = (value: Date) =>
-    new Date(value).toLocaleString(undefined, {
-      year: "numeric",
+  const formatDate = (value: string | Date) => {
+    if (!value) return "N/A";
+
+    const date = new Date(value);
+
+    const hours = date.getUTCHours();
+    const minutes = date.getUTCMinutes();
+    const ampm = hours >= 12 ? "PM" : "AM";
+    const displayHours = hours % 12 || 12;
+    const displayMinutes = minutes < 10 ? `0${minutes}` : minutes;
+
+    const month = date.toLocaleString("en-US", {
       month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+      timeZone: "UTC",
     });
+    const day = date.getUTCDate();
+    const year = date.getUTCFullYear();
+
+    return `${month} ${day}, ${year}, ${displayHours}:${displayMinutes} ${ampm}`;
+  };
 
   useEffect(() => {
     if (!listingId) return;
@@ -133,10 +147,17 @@ function ListingDetail() {
               <button
                 type="button"
                 className="px-4 py-1.5 rounded-md bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-colors"
-                onClick={handleDelete}
+                onClick={() => setIsDeleteModalOpen(!isDeleteModalOpen)}
               >
                 Delete
               </button>
+              <ConfirmationModal
+                heading="Confirm Delete"
+                message="Are you sure you want to delete this listing?"
+                isModalOpen={isDeleteModalOpen}
+                setIsModalOpen={setIsDeleteModalOpen}
+                onConfirm={handleDelete}
+              />
             </div>
           ) : null}
         </div>
@@ -255,7 +276,28 @@ function ListingDetail() {
             </div>
           </div>
 
-          {!isUserAuthor ? (
+          {isUserAuthor ? (
+            <>
+              <div className="rounded-md bg-[#181818] p-3 space-y-3 text-sm">
+                <div>
+                  <p className="text-[#A1A1A1]">Listed on</p>
+                  <p className="text-[#E5E5E5] font-semibold">
+                    {formatDate(listing.createdAt)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[#A1A1A1]">Last updated</p>
+                  <p className="text-[#E5E5E5] font-semibold">
+                    {formatDate(listing.updatedAt)}
+                  </p>
+                </div>
+                <p className="text-xs text-[#6F767E]">
+                  You are the seller for this listing. Use Edit above to refresh
+                  details or mark it sold.
+                </p>
+              </div>
+            </>
+          ) : (
             <>
               <button className="flex justify-center gap-2 w-full px-4 py-2 rounded-md bg-[#2ACFCF] text-[#111111] hover:bg-[#26BABA] transition-colors duration-300">
                 <ChatBubbleBottomCenterTextIcon className="w-6 h-6" />
@@ -274,25 +316,6 @@ function ListingDetail() {
                 <span>Save</span>
               </button>
             </>
-          ) : (
-            <div className="rounded-md bg-[#181818] p-3 space-y-3 text-sm">
-              <div>
-                <p className="text-[#A1A1A1]">Listed on</p>
-                <p className="text-[#E5E5E5] font-semibold">
-                  {formatDate(listing.createdAt)}
-                </p>
-              </div>
-              <div>
-                <p className="text-[#A1A1A1]">Last updated</p>
-                <p className="text-[#E5E5E5] font-semibold">
-                  {formatDate(listing.updatedAt)}
-                </p>
-              </div>
-              <p className="text-xs text-[#6F767E]">
-                You are the seller for this listing. Use Edit above to refresh
-                details or mark it sold.
-              </p>
-            </div>
           )}
         </aside>
       </div>

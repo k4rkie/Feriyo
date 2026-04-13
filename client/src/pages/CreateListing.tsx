@@ -111,6 +111,7 @@ function CreateListing() {
               {...register("title")}
               type="text"
               id="title"
+              autoComplete="off"
               placeholder="Enter title"
               className="w-full px-4 py-2 rounded-md border border-[#2A2A2A] bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] focus:outline-none focus:ring-0"
             />
@@ -130,6 +131,7 @@ function CreateListing() {
               {...register("description")}
               id="description"
               placeholder="Enter description"
+              autoComplete="off"
               className="w-full h-40 px-4 py-2 rounded-md border border-[#2A2A2A] bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] resize-none focus:outline-none focus:ring-0"
               rows={4}
             />
@@ -152,6 +154,7 @@ function CreateListing() {
                 type="number"
                 id="price"
                 placeholder="Enter price"
+                autoComplete="off"
                 className="price-input w-full pl-4 pr-4 py-2 rounded-md border border-[#2A2A2A] bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] appearance-none focus:outline-none focus:ring-0"
               />
 
@@ -174,6 +177,7 @@ function CreateListing() {
               id="location"
               placeholder="Enter Location"
               className="w-full px-4 py-2 rounded-md border border-[#2A2A2A] bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] focus:outline-none focus:ring-0"
+              autoComplete="off"
             />
 
             {errors.locationName && (

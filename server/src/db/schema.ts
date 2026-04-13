@@ -10,6 +10,7 @@ import {
   pgEnum,
   check,
   uuid,
+  unique,
 } from "drizzle-orm/pg-core";
 
 const usersTable = pgTable("users", {
@@ -76,13 +77,35 @@ const listingsTable = pgTable(
   (table) => [check("price_check", sql`${table.price} > 0`)],
 );
 
-// const chatsTable = pgTable("chats", {
-//   conversationId: integer("conversation_id")
-//     .primaryKey()
-//     .generatedAlwaysAsIdentity(),
-// });
-// const messagesTable = pgTable("messages", {
-//   messageId: integer("message_id").primaryKey().generatedAlwaysAsIdentity(),
-// });
+const conversationsTable = pgTable(
+  "conversations",
+  {
+    conversationId: uuid("conversation_id").primaryKey().defaultRandom(),
+    listingId: uuid("listing_id").references(() => listingsTable.listingId, {
+      onDelete: "cascade",
+    }),
+    buyerId: uuid("buyer_id").references(() => usersTable.userId),
+    sellerId: uuid("seller_id").references(() => usersTable.userId),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => ({
+    unqConvoConstraint: unique("unique_conv_idx").on(
+      table.listingId,
+      table.buyerId,
+      table.sellerId,
+    ),
+  }),
+);
 
-export { usersTable, listingsTable };
+const messagesTable = pgTable("messages", {
+  messageId: uuid("message_id").primaryKey().defaultRandom(),
+  conversationId: uuid("conversation_id").references(
+    () => conversationsTable.conversationId,
+    { onDelete: "cascade" },
+  ),
+  senderId: uuid("sender_id").references(() => usersTable.userId),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export { usersTable, listingsTable, conversationsTable, messagesTable };
