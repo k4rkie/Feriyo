@@ -69,22 +69,18 @@ function Listings() {
   }, [searchParams, currentPage]);
 
   if (loading) {
-    return <div className="p-8 text-[#A1A1A1]">Loading listing details...</div>;
-  }
-
-  if (!listings) {
     return (
-      <div>
-        <h1 className="text-3xl font-bold mb-5 text-[#E5E5E5]">All listings</h1>
-        <div className="text-[#A1A1A1]">No listings found.</div>
+      <div className="flex-1 h-full flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2ACFCF]"></div>
+        <span className="ml-3 text-[#6F767E]">Loading...</span>
       </div>
     );
   }
 
   return (
-    <div>
+    <div className="p-6">
       <h1 className="text-3xl font-bold mb-5 text-[#E5E5E5]">{pageHeading}</h1>
-      {listings.length === 0 ? (
+      {!listings ? (
         <div className="text-[#A1A1A1]">No listings found.</div>
       ) : (
         <>

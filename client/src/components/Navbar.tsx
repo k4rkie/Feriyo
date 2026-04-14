@@ -7,12 +7,10 @@ import {
 import { useAuth } from "../context/AuthProvider";
 import ProfileDrowpdown from "./ProfileDrowpdown";
 import { useRef, useState } from "react";
-import Chats from "./Chats";
 import Notifications from "./Notifications";
 
 const Navbar = () => {
   const [showDropdown, setShowDropdown] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const [isNotiOpen, setIsNotiOpen] = useState(false);
   const navigate = useNavigate();
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -62,7 +60,9 @@ const Navbar = () => {
             </button>
             <button
               className="relative p-2 rounded hover:bg-[#1A1A1A] cursor-pointer"
-              onClick={() => setIsChatOpen(!isChatOpen)}
+              onClick={() => {
+                navigate("/chats");
+              }}
             >
               <ChatBubbleBottomCenterTextIcon className="w-6 h-6" />
               {/* <span className="absolute top-0 right-0 block w-2 h-2 rounded-full bg-[#FF9E67]"></span> */}
@@ -99,7 +99,6 @@ const Navbar = () => {
           </Link>
         </>
       )}
-      <Chats isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen} />
       <Notifications isNotiOpen={isNotiOpen} setIsNotiOpen={setIsNotiOpen} />
     </nav>
   );

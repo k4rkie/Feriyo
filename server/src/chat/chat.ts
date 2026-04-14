@@ -1,3 +1,4 @@
+
 import { Server } from "socket.io";
 
 export const initSocket = (httpServer: any) => {
@@ -14,10 +15,13 @@ export const initSocket = (httpServer: any) => {
     console.log("Socketid:", socket.id);
 
     // room join
-    socket.on("join-room", (joinRoomObj) => {});
+    socket.on("join-room", (joinRoomObj) => { });
 
     // new message
-    socket.on("newMessage", (newMessage) => {});
+    socket.on("newMessage", (newMessage) => { });
+  });
+  io.on("disconnection", () => {
+    console.log("User disconnected");
   });
   return io;
 };

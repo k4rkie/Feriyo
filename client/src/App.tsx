@@ -12,6 +12,7 @@ import UserProfile from "./pages/UserProfile";
 import EditListing from "./pages/EditListing";
 import MyListings from "./pages/MyListings";
 import { SocketProvider } from "./context/SocketProvider";
+import Chats from "./pages/Chats";
 
 function App() {
   return (
@@ -42,6 +43,10 @@ function App() {
               <Route path="listings/:listingId" element={<ListingDetail />} />
               <Route path="profile" element={<UserProfile />} />
               <Route path="my-listings" element={<MyListings />} />
+              <Route>
+                <Route path="chats/" element={<Chats />} />
+                <Route path="chats/:chatId" element={<Chats />} />
+              </Route>
             </Route>
           </Routes>
         </SocketProvider>

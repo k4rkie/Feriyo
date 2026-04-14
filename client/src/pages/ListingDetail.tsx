@@ -8,6 +8,7 @@ import { BookmarkIcon as BookmarkSolid } from "@heroicons/react/24/solid";
 import { useAuth } from "../context/AuthProvider";
 import toast from "react-hot-toast";
 import ConfirmationModal from "../components/ConfirmationModal";
+import { useSocket } from "../context/SocketProvider";
 
 type AuthorInfo = {
   userId: string;
@@ -41,6 +42,8 @@ function ListingDetail() {
 
   const auth = useAuth();
   const navigate = useNavigate();
+  const { isConnected } = useSocket();
+
   const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(listing?.authorInfo.username ?? "User")}&background=4f46e5&color=fff&size=128`;
 
   const formatDate = (value: string | Date) => {
@@ -74,7 +77,6 @@ function ListingDetail() {
         );
         const result = await response.json();
         setListing(result.data || null);
-        console.log(result.data);
       } catch (error) {
         console.error("Unable to load listing detail", error);
       } finally {
@@ -92,7 +94,12 @@ function ListingDetail() {
   }, [auth.user, listing]);
 
   if (loading) {
-    return <div className="p-8 text-[#A1A1A1]">Loading listing details...</div>;
+    return (
+      <div className="flex-1 h-full flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2ACFCF]"></div>
+        <span className="ml-3 text-[#6F767E]">Loading...</span>
+      </div>
+    );
   }
 
   async function handleDelete() {
@@ -115,6 +122,35 @@ function ListingDetail() {
       toast.success(`${result.message}`);
     } catch (error) {
       return toast.error("Something went wrong");
+    }
+  }
+
+  async function handleContactSeller() {
+    if (!auth.accessToken) {
+      return navigate("/login");
+    }
+    if (isConnected) {
+      const BASE_URL: string = import.meta.env.VITE_BASE_BACKEND_URL;
+      const endPoint = `api/chats`;
+      const url = new URL(endPoint, BASE_URL);
+      const response = await fetch(url, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          Authorization: `Bearer ${auth.accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          listingId,
+          sellerId: listing?.authorInfo.userId,
+        }),
+      });
+      if (!response.ok) {
+        return toast.error("Something went wrong");
+      }
+      const result = await response.json();
+      const chatId = result.data.chatId;
+      navigate(`/chats/${chatId}`);
     }
   }
 
@@ -299,7 +335,10 @@ function ListingDetail() {
             </>
           ) : (
             <>
-              <button className="flex justify-center gap-2 w-full px-4 py-2 rounded-md bg-[#2ACFCF] text-[#111111] hover:bg-[#26BABA] transition-colors duration-300 cursor-pointer">
+              <button
+                className="flex justify-center gap-2 w-full px-4 py-2 rounded-md bg-[#2ACFCF] text-[#111111] hover:bg-[#26BABA] transition-colors duration-300 cursor-pointer"
+                onClick={handleContactSeller}
+              >
                 <ChatBubbleBottomCenterTextIcon className="w-6 h-6" />
                 <span>Contact Seller</span>
               </button>

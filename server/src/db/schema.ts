@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   integer,
   pgTable,
@@ -77,10 +77,10 @@ const listingsTable = pgTable(
   (table) => [check("price_check", sql`${table.price} > 0`)],
 );
 
-const conversationsTable = pgTable(
-  "conversations",
+const chatsTable = pgTable(
+  "chats",
   {
-    conversationId: uuid("conversation_id").primaryKey().defaultRandom(),
+    chatId: uuid("chat_id").primaryKey().defaultRandom(),
     listingId: uuid("listing_id").references(() => listingsTable.listingId, {
       onDelete: "cascade",
     }),
@@ -99,13 +99,28 @@ const conversationsTable = pgTable(
 
 const messagesTable = pgTable("messages", {
   messageId: uuid("message_id").primaryKey().defaultRandom(),
-  conversationId: uuid("conversation_id").references(
-    () => conversationsTable.conversationId,
-    { onDelete: "cascade" },
-  ),
+  chatId: uuid("chat_id").references(() => chatsTable.chatId, {
+    onDelete: "cascade",
+  }),
   senderId: uuid("sender_id").references(() => usersTable.userId),
   content: text("content").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export { usersTable, listingsTable, conversationsTable, messagesTable };
+export const chatsRelations = relations(chatsTable, ({ one, many }) => ({
+  listing: one(listingsTable, {
+    fields: [chatsTable.listingId],
+    references: [listingsTable.listingId],
+  }),
+  buyer: one(usersTable, {
+    fields: [chatsTable.buyerId],
+    references: [usersTable.userId],
+  }),
+  seller: one(usersTable, {
+    fields: [chatsTable.sellerId],
+    references: [usersTable.userId],
+  }),
+  messages: many(messagesTable),
+}));
+
+export { usersTable, listingsTable, chatsTable, messagesTable };

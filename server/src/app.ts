@@ -6,6 +6,7 @@ import authRouter from "./routes/auth.routes.js";
 import logger from "./middlewares/logger.js";
 import listingRouter from "./routes/listing.routes.js";
 import { initSocket } from "./chat/chat.js";
+import chatRouter from "./routes/chat.routes.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -24,5 +25,6 @@ app.get("/", (req: Request, res: Response) => {
 });
 app.use("/api/auth", authRouter);
 app.use("/api/listings", listingRouter);
+app.use("/api/chats", chatRouter);
 
 export default httpServer;

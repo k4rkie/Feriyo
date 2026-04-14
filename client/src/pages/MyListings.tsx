@@ -4,22 +4,22 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthProvider";
 
 type authorInfo = {
-  userId: number;
+  userId: string;
   username: string;
   email: string;
 };
 
 type MyListingData = {
-  listingId: number;
+  listingId: string;
   title: string;
   description: string | null;
   price: number;
   category: string;
   condition: string;
-  location: string;
-  isSold: boolean;
+  locationName: string;
+  status: string;
   imageUrls: string[];
-  authorId: number;
+  authorId: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -55,11 +55,16 @@ function MyListings() {
   }
 
   if (loading) {
-    return <div className="p-8 text-[#A1A1A1]">Loading listing details...</div>;
+    return (
+      <div className="flex-1 h-full flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2ACFCF]"></div>
+        <span className="ml-3 text-[#6F767E]">Loading...</span>
+      </div>
+    );
   }
 
   return (
-    <div>
+    <div className="p-6">
       <h1 className="text-3xl font-bold mb-5 text-[#E5E5E5]">My Listings</h1>
       {listings.length === 0 ? (
         <div className="text-[#A1A1A1]">No listings found.</div>
