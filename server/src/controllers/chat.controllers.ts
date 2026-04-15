@@ -1,8 +1,37 @@
 import { Request, Response, NextFunction } from "express";
 import { contactSellerSchema } from "../validators/chat.validator.js";
-import { contactSeller, getChatData } from "../services/chat.services.js";
+import {
+  contactSeller,
+  getChatData,
+  getChatList,
+} from "../services/chat.services.js";
 import { log } from "node:console";
 import { NotFoundError } from "../errors/index.js";
+
+const getChatListController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const userId = req.user!.userId;
+
+  try {
+    const chatList = await getChatList(userId);
+    return res.status(200).json({
+      success: true,
+      message: "ChatList fetched successfully",
+      data: { chatList },
+      error: null,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: "Something went wrong",
+      data: null,
+      error: error,
+    });
+  }
+};
 
 const contactSellerController = async (
   req: Request,
@@ -72,4 +101,11 @@ const getChatDataController = async (
   }
 };
 
-export { contactSellerController, getChatDataController };
+const newMessageController = async () => {};
+
+export {
+  contactSellerController,
+  getChatDataController,
+  newMessageController,
+  getChatListController,
+};

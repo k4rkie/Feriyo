@@ -1,5 +1,16 @@
-
 import { Server } from "socket.io";
+import { handleNewMessage } from "../services/chat.services.js";
+
+type newMessageObj = {
+  message: string;
+  userId: string;
+  chatId: string;
+};
+
+type joinRoomObj = {
+  roomId: string;
+  userId: string;
+};
 
 export const initSocket = (httpServer: any) => {
   const io = new Server(httpServer, {
@@ -12,13 +23,16 @@ export const initSocket = (httpServer: any) => {
 
   io.on("connection", (socket) => {
     console.log("New User connected");
-    console.log("Socketid:", socket.id);
 
     // room join
-    socket.on("join-room", (joinRoomObj) => { });
+    socket.on("joinRoom", (joinRoomData: joinRoomObj) => {
+      socket.join(joinRoomData.roomId);
+    });
 
     // new message
-    socket.on("newMessage", (newMessage) => { });
+    socket.on("newMessage", async (newMessageData: newMessageObj) => {
+      await handleNewMessage(newMessageData, io);
+    });
   });
   io.on("disconnection", () => {
     console.log("User disconnected");

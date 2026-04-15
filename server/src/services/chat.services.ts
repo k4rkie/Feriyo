@@ -1,8 +1,36 @@
-import { eq, and } from "drizzle-orm";
+import { eq, and, or, desc } from "drizzle-orm";
 import { db } from "../db/db.js";
 import { chatsTable, messagesTable } from "../db/schema.js";
 import { contactSellerInput } from "../validators/chat.validator.js";
 import { NotFoundError } from "../errors/index.js";
+import type { Server, Socket } from "socket.io";
+import { newMessageController } from "../controllers/chat.controllers.js";
+
+type newMessageObj = {
+  message: string;
+  userId: string;
+  chatId: string;
+};
+
+const getChatList = async (userId: string) => {
+  let chatList = await db.query.chatsTable.findMany({
+    where: (chatsTable, { or, eq }) =>
+      or(eq(chatsTable.buyerId, userId), eq(chatsTable.sellerId, userId)),
+    with: {
+      listing: {
+        columns: { listingId: true, title: true, price: true, imageUrls: true },
+      },
+      buyer: {
+        columns: { username: true, avatarUrl: true },
+      },
+      seller: {
+        columns: { username: true, avatarUrl: true },
+      },
+    },
+  });
+
+  return chatList;
+};
 
 const contactSeller = async (
   contactSellerInput: contactSellerInput,
@@ -31,6 +59,11 @@ const contactSeller = async (
         buyerId: userId,
       })
       .returning();
+    await db.insert(messagesTable).values({
+      chatId: chat.chatId,
+      senderId: userId,
+      content: "I m interested in buying your product",
+    });
   }
   chatId = chat.chatId;
   return chatId;
@@ -63,16 +96,32 @@ const getChatData = async (chatId: string) => {
     },
   });
 
-  console.log("ChatData: ", chatData);
-
   const messages = await db
     .select()
     .from(messagesTable)
     .where(eq(messagesTable.chatId, chatId));
 
-  console.log("messages: ", messages);
-
   return { chatData, messages };
 };
 
-export { contactSeller, getChatData };
+const handleJoinRoom = async () => {};
+
+const handleNewMessage = async (newMessageData: newMessageObj, io: Server) => {
+  console.log("UserId:", newMessageData.userId);
+  console.log("Message:", newMessageData.message);
+  try {
+    const [newMessage] = await db
+      .insert(messagesTable)
+      .values({
+        chatId: newMessageData.chatId,
+        senderId: newMessageData.userId,
+        content: newMessageData.message,
+      })
+      .returning();
+    io.to(newMessageData.chatId).emit("newMessage", newMessage);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export { contactSeller, getChatData, handleNewMessage, getChatList };
