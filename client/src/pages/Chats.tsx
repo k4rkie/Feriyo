@@ -182,7 +182,7 @@ function Chats() {
 
   useEffect(() => {
     if (!socket || !isConnected) {
-      console.log("Socket not ready yet...");
+      console.log("Socket not ready");
       return;
     }
     const handleNewMessage = (newMessageObj: Message) => {

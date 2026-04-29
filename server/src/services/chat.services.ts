@@ -1,6 +1,6 @@
 import { eq, and, or, desc } from "drizzle-orm";
 import { db } from "../db/db.js";
-import { chatsTable, messagesTable } from "../db/schema.js";
+import { chatsTable, listingsTable, messagesTable } from "../db/schema.js";
 import { contactSellerInput } from "../validators/chat.validator.js";
 import { NotFoundError } from "../errors/index.js";
 import type { Server, Socket } from "socket.io";
@@ -62,8 +62,14 @@ const contactSeller = async (
     await db.insert(messagesTable).values({
       chatId: chat.chatId,
       senderId: userId,
-      content: "I m interested in buying your product",
+      content: "I'm interested in buying this product!",
     });
+    await db
+      .update(listingsTable)
+      .set({
+        status: "pending",
+      })
+      .where(eq(listingsTable.listingId, listingId));
   }
   chatId = chat.chatId;
   return chatId;
@@ -82,11 +88,9 @@ const getChatData = async (chatId: string) => {
   const chatData = await db.query.chatsTable.findFirst({
     where: (chatsTable, { eq }) => eq(chatsTable.chatId, chatId),
     with: {
-      // Join 1: Get specific listing info
       listing: {
         columns: { listingId: true, title: true, price: true, imageUrls: true },
       },
-      // Join 2 & 3: Get profiles for both parties
       buyer: {
         columns: { userId: true, username: true, avatarUrl: true },
       },
