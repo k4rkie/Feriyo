@@ -81,11 +81,17 @@ const chatsTable = pgTable(
   "chats",
   {
     chatId: uuid("chat_id").primaryKey().defaultRandom(),
-    listingId: uuid("listing_id").references(() => listingsTable.listingId, {
-      onDelete: "cascade",
-    }),
-    buyerId: uuid("buyer_id").references(() => usersTable.userId),
-    sellerId: uuid("seller_id").references(() => usersTable.userId),
+    listingId: uuid("listing_id")
+      .references(() => listingsTable.listingId, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    buyerId: uuid("buyer_id")
+      .references(() => usersTable.userId)
+      .notNull(),
+    sellerId: uuid("seller_id")
+      .references(() => usersTable.userId)
+      .notNull(),
     createdAt: timestamp("created_at").defaultNow(),
   },
   (table) => ({
@@ -99,10 +105,14 @@ const chatsTable = pgTable(
 
 const messagesTable = pgTable("messages", {
   messageId: uuid("message_id").primaryKey().defaultRandom(),
-  chatId: uuid("chat_id").references(() => chatsTable.chatId, {
-    onDelete: "cascade",
-  }),
-  senderId: uuid("sender_id").references(() => usersTable.userId),
+  chatId: uuid("chat_id")
+    .references(() => chatsTable.chatId, {
+      onDelete: "cascade",
+    })
+    .notNull(),
+  senderId: uuid("sender_id")
+    .references(() => usersTable.userId)
+    .notNull(),
   content: text("content").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -122,5 +132,27 @@ export const chatsRelations = relations(chatsTable, ({ one, many }) => ({
   }),
   messages: many(messagesTable),
 }));
+
+export const offerStatusEnum = pgEnum("status", [
+  "accepted",
+  "rejected",
+  "pending",
+]);
+
+const offersTable = pgTable("offers", {
+  offerId: uuid("offer_id").primaryKey().defaultRandom(),
+  listingId: uuid("listing_id")
+    .references(() => listingsTable.listingId, {
+      onDelete: "cascade",
+    })
+    .notNull(),
+  chatId: uuid("chat_id")
+    .references(() => chatsTable.chatId, {
+      onDelete: "cascade",
+    })
+    .notNull(),
+  status: offerStatusEnum().notNull(),
+  price: integer("price").notNull(),
+});
 
 export { usersTable, listingsTable, chatsTable, messagesTable };

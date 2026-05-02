@@ -57,7 +57,6 @@ function Listings() {
         const response = await fetch(url.toString());
         const result = await response.json();
         setListings(result.data || null);
-        console.log(result);
         setTotalPages(result.meta.totalPages);
       } catch (error) {
         console.error("Failed to load listings", error);

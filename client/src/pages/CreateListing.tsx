@@ -155,7 +155,8 @@ function CreateListing() {
                 id="price"
                 placeholder="Enter price"
                 autoComplete="off"
-                className="price-input w-full pl-4 pr-4 py-2 rounded-md border border-[#2A2A2A] bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] appearance-none focus:outline-none focus:ring-0"
+                className="price-input w-full pl-4 pr-4 py-2 rounded-md 
+                border border-[#2A2A2A] bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] appearance-none focus:outline-none focus:ring-0"
               />
 
               {errors.price && (

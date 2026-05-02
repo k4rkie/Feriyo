@@ -112,9 +112,6 @@ function EditListing() {
       formData.append("removedListingImages", url);
     }
 
-    console.log("Data", data);
-    console.log("FormData contents:", Array.from(formData.entries()));
-
     try {
       const response = await fetch(
         `http://localhost:8080/api/listings/${listingId}`,

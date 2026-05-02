@@ -1,10 +1,10 @@
-interface Props {
+type Props = {
   isModalOpen: boolean;
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   onConfirm: () => void;
   heading: string;
   message: string;
-}
+};
 
 function ConfirmationModal({
   isModalOpen,
@@ -16,7 +16,7 @@ function ConfirmationModal({
   if (!isModalOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
       <div className="w-full max-w-md bg-[#111111] border border-[#2A2A2A] rounded-xl shadow-2xl p-6 flex flex-col gap-4 animate-in fade-in zoom-in duration-200">
         <h2 className="text-xl font-semibold text-white">{heading}</h2>
         <p className="text-[#A1A1A1] leading-relaxed">{message}</p>

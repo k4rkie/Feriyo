@@ -5,9 +5,11 @@ import { Link } from "react-router-dom";
 import {
   PaperAirplaneIcon,
   MagnifyingGlassIcon,
+  BanknotesIcon,
 } from "@heroicons/react/24/solid";
 import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 import { useSocket } from "../context/SocketProvider";
+import MakeOfferModal from "../components/MakeOfferModal";
 
 type ChatListItem = {
   listingId: string;
@@ -83,6 +85,7 @@ function Chats() {
   const { socket, isConnected } = useSocket();
   const messageInputRef = useRef<HTMLInputElement>(null);
   const auth = useAuth();
+  const [isMakeModalOfferOpen, setIsMakeModalOfferOpen] = useState(false);
 
   if (!auth.isAuthLoading && !auth.user) {
     <Navigate to="/login" replace />;
@@ -182,17 +185,14 @@ function Chats() {
 
   useEffect(() => {
     if (!socket || !isConnected) {
-      console.log("Socket not ready");
       return;
     }
     const handleNewMessage = (newMessageObj: Message) => {
-      console.log("📩 MESSAGE RECEIVED:", newMessageObj);
       setMessages((prev) => [...prev, newMessageObj]);
     };
     socket.on("newMessage", handleNewMessage);
 
     return () => {
-      console.log("❌ Listener detached");
       socket.off("newMessage", handleNewMessage);
     };
   }, [socket, isConnected]);
@@ -373,15 +373,26 @@ function Chats() {
                 onSubmit={handleSendMessage}
                 className="flex gap-3 p-4 bg-[#111111] border-t border-[#2A2A2A]"
               >
+                <button
+                  type="button"
+                  title="Make offer"
+                  className="p-2 bg-[#2ACFCF] hover:bg-[#26BABA] rounded-lg transition-all active:scale-95 group cursor-pointer"
+                  onClick={() => setIsMakeModalOfferOpen(true)}
+                >
+                  <BanknotesIcon className="w-5 h-5 text-[#111111]" />
+                </button>
                 <input
                   type="text"
                   placeholder="Write a message..."
                   ref={messageInputRef}
-                  className="w-full bg-[#181818] border border-[#2A2A2A] rounded-xl px-4 py-2.5 focus-within:border-[#414141] transition-all placeholder:text-[#6F767E]"
+                  className="w-full bg-[#181818] border border-[#2A2A2A] 
+                  rounded-xl px-4 py-2.5 focus-within:border-[#414141] transition-all placeholder:text-[#6F767E]"
                 />
+
                 <button
                   type="submit"
-                  className="p-2 bg-[#2ACFCF] hover:bg-[#26BABA] rounded-lg transition-all active:scale-95 group"
+                  title="Send"
+                  className="p-2 bg-[#2ACFCF] hover:bg-[#26BABA] rounded-lg transition-all active:scale-95 group cursor-pointer"
                 >
                   <PaperAirplaneIcon className="w-5 h-5 text-[#111111]" />
                 </button>
@@ -407,6 +418,11 @@ function Chats() {
           </div>
         </div>
       )}
+
+      <MakeOfferModal
+        isModalOpen={isMakeModalOfferOpen}
+        setIsModalOpen={setIsMakeModalOfferOpen}
+      />
     </div>
   );
 }

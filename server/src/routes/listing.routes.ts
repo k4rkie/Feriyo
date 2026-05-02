@@ -46,5 +46,6 @@ listingRouter.put(
   editListingController,
 );
 listingRouter.delete("/:listingId", protect, deleteListingContorller);
+// listingRouter.post("/:listingId/offer");
 
 export default listingRouter;
