@@ -73,7 +73,15 @@ const editListingSchema = z.object({
   removedListingImages: z.array(z.string()).default([]),
 });
 
+const makeOfferSchema = z.object({
+  purposedBy: z.string("Invalid purposedBy id"),
+  listingId: z.string("Invalid listings id"),
+  chatId: z.string("Invalid chat id"),
+  price: z.number("Price must be a number"),
+});
+
 export type createListingInput = z.infer<typeof createListingSchema>;
 export type editListingInput = z.infer<typeof editListingSchema>;
+export type makeOfferDetail = z.infer<typeof makeOfferSchema>;
 
-export { createListingSchema, editListingSchema };
+export { createListingSchema, editListingSchema, makeOfferSchema };

@@ -11,6 +11,7 @@ import {
   check,
   uuid,
   unique,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 const usersTable = pgTable("users", {
@@ -134,13 +135,17 @@ export const chatsRelations = relations(chatsTable, ({ one, many }) => ({
 }));
 
 export const offerStatusEnum = pgEnum("status", [
+  "pending",
   "accepted",
   "rejected",
-  "pending",
+  "cancelled"
 ]);
 
 const offersTable = pgTable("offers", {
   offerId: uuid("offer_id").primaryKey().defaultRandom(),
+  purposedBy: uuid("purposed_by").references(() => usersTable.userId, {
+    onDelete: "cascade",
+  }),
   listingId: uuid("listing_id")
     .references(() => listingsTable.listingId, {
       onDelete: "cascade",
@@ -151,8 +156,16 @@ const offersTable = pgTable("offers", {
       onDelete: "cascade",
     })
     .notNull(),
-  status: offerStatusEnum().notNull(),
+  status: offerStatusEnum("status").notNull(),
   price: integer("price").notNull(),
-});
+  createdAt: timestamp("created_at").defaultNow(),
+  expireAt: timestamp("expire_at").notNull()
+},
+  (table) => [check("price_check", sql`${table.price} > 0`),
+  uniqueIndex("unique_pending_offer_idx")
+    .on(table.chatId, table.listingId)
+    .where(sql`${table.status} = 'pending'`)
+  ],
+);
 
-export { usersTable, listingsTable, chatsTable, messagesTable };
+export { usersTable, listingsTable, chatsTable, messagesTable, offersTable };

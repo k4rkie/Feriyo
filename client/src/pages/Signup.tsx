@@ -63,7 +63,8 @@ function Signup() {
                 name="username"
                 type="text"
                 placeholder="Username"
-                className="w-full px-4 py-2 rounded-md  bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1]  focus:outline-none focus:ring-2 focus:ring-[#2ACFCF] focus:border-[#2ACFCF] border-[#2A2A2A]"
+                className="w-full px-4 py-2 rounded-md  bg-[#1A1A1A] text-[#E5E5E5] 
+                placeholder:text-[#A1A1A1]  focus:outline-none focus:ring-2 focus:ring-[#2ACFCF] focus:border-[#2ACFCF] border-[#2A2A2A]"
               />
               {errors.username && (
                 <p className="text-red-500">{errors.username.message}</p>
@@ -78,7 +79,8 @@ function Signup() {
                 name="email"
                 type="email"
                 placeholder="Email"
-                className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] focus:outline-none focus:ring-2 focus:ring-[#2ACFCF] focus:border-[#2ACFCF]"
+                className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-[#E5E5E5] 
+                placeholder:text-[#A1A1A1] focus:outline-none focus:ring-2 focus:ring-[#2ACFCF] focus:border-[#2ACFCF]"
               />
               {errors.email && (
                 <p className="text-red-500">{errors.email.message}</p>
@@ -93,7 +95,8 @@ function Signup() {
                 name="password"
                 type="password"
                 placeholder="Password"
-                className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] focus:outline-none focus:ring-2 focus:ring-[#2ACFCF] focus:border-[#2ACFCF]"
+                className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-[#E5E5E5] 
+                placeholder:text-[#A1A1A1] focus:outline-none focus:ring-2 focus:ring-[#2ACFCF] focus:border-[#2ACFCF]"
               />
               {errors.password && (
                 <p className="text-red-500">{errors.password.message}</p>
@@ -108,7 +111,8 @@ function Signup() {
                 autoComplete="off"
                 type="password"
                 placeholder="Confirm Password"
-                className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-[#E5E5E5] placeholder:text-[#A1A1A1] focus:outline-none focus:ring-2 focus:ring-[#2ACFCF] focus:border-[#2ACFCF]"
+                className="w-full px-4 py-2 rounded-md bg-[#1A1A1A] text-[#E5E5E5] 
+                placeholder:text-[#A1A1A1] focus:outline-none focus:ring-2 focus:ring-[#2ACFCF] focus:border-[#2ACFCF]"
               />
               {errors.confirmPassword && (
                 <p className="text-red-500">{errors.confirmPassword.message}</p>

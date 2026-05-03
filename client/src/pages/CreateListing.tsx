@@ -53,7 +53,7 @@ function CreateListing() {
     formData.append("locationName", data.locationName);
     formData.append("category", data.category);
     formData.append("condition", data.condition);
-    for (let image of data.listingImages) {
+    for (const image of data.listingImages) {
       formData.append("listingImages", image);
     }
     try {
@@ -87,6 +87,7 @@ function CreateListing() {
     } catch (error) {
       toast.error("Something went worng");
       setError("root", { message: "Something went wrong" });
+      console.log(error);
     }
   };
 

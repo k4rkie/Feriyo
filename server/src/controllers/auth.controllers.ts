@@ -59,7 +59,7 @@ const signupController = async (req: Request, res: Response) => {
       success: false,
       message: "Internal server error",
       data: null,
-      error: null,
+      error: error,
     });
   }
 };

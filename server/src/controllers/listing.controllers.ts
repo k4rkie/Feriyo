@@ -5,12 +5,14 @@ import {
   editListing,
   getListingById,
   getListings,
+  makeOffer,
   myListings,
 } from "../services/listing.services.js";
 import multer from "multer";
 import {
   createListingSchema,
   editListingSchema,
+  makeOfferSchema,
 } from "../validators/listings.validator.js";
 import { getUserInfo } from "../services/auth.services.js";
 import { NotFoundError, UnauthorizedError } from "../errors/index.js";
@@ -265,6 +267,32 @@ const getMyListings = async (
   }
 };
 
+const makeOfferContoller = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const makeOfferDetail = makeOfferSchema.safeParse(req.body);
+  if (!makeOfferDetail.success) {
+    const { fieldErrors } = makeOfferDetail.error.flatten();
+    return res.status(400).json({
+      success: false,
+      message: "Validation Error",
+      data: null,
+      error: fieldErrors,
+    });
+  }
+  try {
+    const newOffer = await makeOffer(makeOfferDetail.data);
+    return res.status(201).json({
+      success: true,
+      message: "Offer made successfully",
+      data: newOffer,
+      error: null,
+    });
+  } catch (error) {}
+};
+
 export {
   getListingsController,
   createListingContorller,
@@ -272,4 +300,5 @@ export {
   editListingController,
   deleteListingContorller,
   getMyListings,
+  makeOfferContoller,
 };

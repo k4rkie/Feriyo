@@ -1,4 +1,4 @@
-import { Router } from "express";
+import express, { Router } from "express";
 import path from "path";
 import {
   createListingContorller,
@@ -7,6 +7,7 @@ import {
   deleteListingContorller,
   editListingController,
   getMyListings,
+  makeOfferContoller,
 } from "../controllers/listing.controllers.js";
 import multer from "multer";
 import { protect } from "../middlewares/auth.middleware.js";
@@ -45,7 +46,13 @@ listingRouter.put(
   upload.array("newListingImages", 5),
   editListingController,
 );
+
 listingRouter.delete("/:listingId", protect, deleteListingContorller);
-// listingRouter.post("/:listingId/offer");
+listingRouter.post(
+  "/:listingId/offer",
+  express.json(),
+  protect,
+  makeOfferContoller,
+);
 
 export default listingRouter;

@@ -4,6 +4,7 @@ import { listingsTable } from "../db/schema.js";
 import type {
   createListingInput,
   editListingInput,
+  makeOfferDetail,
 } from "../validators/listings.validator.js";
 import { getUserInfo } from "./auth.services.js";
 import { NotFoundError, UnauthorizedError } from "../errors/index.js";
@@ -303,6 +304,8 @@ const myListings = async (userId: string) => {
   }
 };
 
+const makeOffer = async (offerDetails: makeOfferDetail) => {};
+
 export {
   getListings,
   createListing,
@@ -310,4 +313,5 @@ export {
   editListing,
   deleteListing,
   myListings,
+  makeOffer,
 };

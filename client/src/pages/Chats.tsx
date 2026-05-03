@@ -86,6 +86,7 @@ function Chats() {
   const messageInputRef = useRef<HTMLInputElement>(null);
   const auth = useAuth();
   const [isMakeModalOfferOpen, setIsMakeModalOfferOpen] = useState(false);
+  const [priceError, setPriceError] = useState<string | null>(null);
 
   if (!auth.isAuthLoading && !auth.user) {
     <Navigate to="/login" replace />;
@@ -124,6 +125,7 @@ function Chats() {
           const result = await response.json();
           setChatList(result.data.chatList);
         } catch (error) {
+          console.log(error);
           setIsLoading(false);
         } finally {
           setIsLoading(false);
@@ -152,6 +154,7 @@ function Chats() {
         setMessages(result.data.messages);
       } catch (error) {
         setIsLoading(false);
+        console.log(error);
       } finally {
         setIsLoading(false);
       }
@@ -165,7 +168,7 @@ function Chats() {
       };
       socket.emit("joinRoom", joinRoomData);
     }
-  }, [chatId, auth.accessToken, , auth.isAuthLoading, isConnected, socket]);
+  }, [chatId, auth.accessToken, auth.isAuthLoading, isConnected, socket]);
 
   function handleSendMessage(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -196,6 +199,59 @@ function Chats() {
       socket.off("newMessage", handleNewMessage);
     };
   }, [socket, isConnected]);
+
+  async function handleMakeOffer(
+    e: React.SubmitEvent<HTMLFormElement>,
+    price: number,
+  ) {
+    e.preventDefault();
+    setIsLoading(true);
+    if (price) {
+      if (price === undefined || isNaN(price)) {
+        setPriceError("Please enter a valid price");
+        setIsLoading(false);
+        return;
+      }
+      if (price <= 0) {
+        setPriceError("Price must be greater than 0");
+        setIsLoading(false);
+        return;
+      }
+      const BASE_URL: string = import.meta.env.VITE_BASE_BACKEND_URL;
+      const endPoint = `api/listings/${chatData?.listingId}/offer`;
+      const url = new URL(endPoint, BASE_URL);
+
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            Authorization: `Bearer ${auth.accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            chatId,
+            listingId: chatData!.listingId,
+            purposedBy: auth.user?.userId,
+            price,
+          }),
+        });
+        const result = await response.json();
+        if (!response.ok) {
+          return;
+        }
+        console.log(result);
+      } catch (err) {
+        setPriceError("Something went wrong");
+        console.log(err);
+        setIsLoading(false);
+      } finally {
+        setPriceError(null);
+        setIsMakeModalOfferOpen(false);
+        setIsLoading(false);
+      }
+    }
+  }
 
   if (isLoading) {
     <div className="flex-1 flex items-center justify-center">
@@ -397,6 +453,14 @@ function Chats() {
                   <PaperAirplaneIcon className="w-5 h-5 text-[#111111]" />
                 </button>
               </form>
+              <MakeOfferModal
+                isModalOpen={isMakeModalOfferOpen}
+                setIsModalOpen={setIsMakeModalOfferOpen}
+                onConfirm={handleMakeOffer}
+                isLoading={isLoading}
+                priceError={priceError}
+                setPriceError={setPriceError}
+              />
             </>
           ) : (
             /* Loading State */
@@ -418,11 +482,6 @@ function Chats() {
           </div>
         </div>
       )}
-
-      <MakeOfferModal
-        isModalOpen={isMakeModalOfferOpen}
-        setIsModalOpen={setIsMakeModalOfferOpen}
-      />
     </div>
   );
 }
