@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./client/public/feriyo.svg" alt="Feriyo Logo" width="150" height="auto" />
+  <img src="./apps/web/public/feriyo.svg" alt="Feriyo Logo" width="150" height="auto" />
   <p><strong>Feriyo is a website where people buy and sell second-hand stuff.</strong></p>
 </div>
 
@@ -18,18 +18,6 @@ Think of it like a small Facebook Marketplace: you post what you want to sell, b
 
 ---
 
-## How it works (in plain words)
-
-The project is made of three parts that talk to each other:
-
-- **The website** (`client/`) — everything you see and click in the browser. Built with React.
-- **The server** (`server/`) — the brain behind it. It checks who's logged in, saves new listings, delivers chat messages the moment they're sent, and enforces the rules — for example, only the owner of a listing can edit it, and prices have to be above zero. Built with Node.js and Express.
-- **The database** — the permanent memory: users, listings, photos, chats, messages, offers, and saved items. PostgreSQL.
-
-One detail I'm still happy with: the "only one open offer per chat" rule isn't just checked in my code — it's enforced by the database itself. So even if two people send an offer at the exact same moment, the database guarantees only one of them gets through.
-
----
-
 ## Built with
 
 | Part | What I used | What it does (in plain words) |
@@ -38,18 +26,31 @@ One detail I'm still happy with: the "only one open offer per chat" rule isn't j
 | Server | Node.js, Express, TypeScript | Answers the browser's requests |
 | Database | PostgreSQL, Drizzle | Stores everything; Drizzle lets me talk to the database in TypeScript instead of raw SQL |
 | Live chat | Socket.IO | Makes messages show up instantly |
-| Passwords | bcrypt | Scrambles passwords so they're never stored as-is |
 | Staying logged in | JWT (access + refresh tokens) | Proves who you are on each request, without logging in again every hour |
 | Input checking | Zod | Rejects badly-shaped data before it can reach the database |
 | Photo uploads | Multer | Saves listing photos sent from the browser |
 
-Everything is in one repository, split into `client/`, `server/`, and `shared/` (the `shared/` folder holds the input-checking rules, so the browser and the server always agree on what valid data looks like).
+This is a **pnpm monorepo** with three packages:
+
+```
+feriyo/
+├── apps/
+│   ├── web/            @feriyo/web   — React (Vite) frontend
+│   └── api/            @feriyo/api   — Express backend
+├── packages/
+│   └── shared/         @feriyo/shared — Zod validation schemas (used by both web & api)
+├── pnpm-workspace.yaml
+├── docker-compose.yml  — PostgreSQL
+└── .env                — docker-compose env vars
+```
+
+The `shared/` package holds the input-checking rules (Zod), so the browser and the server always agree on what valid data looks like.
 
 ---
 
 ## Running it on your own machine
 
-You'll need [Node.js](https://nodejs.org) and a PostgreSQL database running locally.
+You'll need [Node.js](https://nodejs.org) (v18+) and [pnpm](https://pnpm.io).
 
 **1. Get the code**
 
@@ -58,78 +59,59 @@ git clone git@github.com:k4rkie/feriyo.git
 cd feriyo
 ```
 
-**2. Set up the server**
+**2. Set up environment variables**
 
-```bash
-cd server
-npm install
+The root `.env` is used by `docker-compose.yml` to configure the PostgreSQL container:
+
+```env
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=feriyo_postgre123
+POSTGRES_DB=feriyodb
 ```
 
-Create a file called `.env` inside `server/` with these values:
+**3. Start the database**
+
+```bash
+docker compose up -d
+```
+
+This spins up a PostgreSQL 17 container on `localhost:5432` using the credentials above.
+
+**4. Install dependencies**
+
+```bash
+pnpm install
+```
+
+**5. Set up the API environment**
+
+Create a file called `.env` inside `apps/api/` with these values:
 
 ```env
 PORT=8000
-DATABASE_URL=your_postgres_connection_string
+DATABASE_URL=postgres://postgres:feriyo_postgre123@localhost:5432/feriyodb
 ACCESS_TOKEN_SECRET=any_long_random_string
 REFRESH_TOKEN_SECRET=another_long_random_string
 ```
 
-Then create the database tables:
+**6. Create the database tables**
 
 ```bash
-npx drizzle-kit push --config=src/db/drizzle.config.ts
+pnpm --filter @feriyo/api exec drizzle-kit push --config ./src/db/drizzle.config.ts
 ```
 
-(Optional) Fill the database with fake users and listings so there's something to look at:
+**(Optional)** Seed the database with fake users and listings:
 
 ```bash
-npx tsx src/db/seed.ts
+pnpm --filter @feriyo/api exec tsx src/db/seed.ts
 ```
 
-Start the server:
+**7. Start everything**
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
-**3. Set up the website**
+This runs the API server and the Vite dev server in parallel.
 
-In a second terminal:
-
-```bash
-cd client
-npm install
-```
-
-Create a file called `.env` inside `client/` pointing at the server:
-
-```env
-VITE_BASE_BACKEND_URL=http://localhost:8000
-```
-
-Start the website:
-
-```bash
-npm run dev
-```
-
-Open the address it prints (usually `http://localhost:5173`) in your browser.
-
----
-
-## What this project taught me
-
-- How a full application fits together end to end: browser → server → database, and all the way back.
-- Live features are a different beast from normal request/response pages — chat taught me that.
-- The database can enforce rules on its own (like the one-open-offer rule), which is safer than only checking them in code.
-- The basics of accounts and security: password hashing, login tokens, and protecting pages and actions from people who shouldn't touch them.
-
-## Things I'd do differently today
-
-Keeping it honest — this was a first attempt, and I've learned a lot since:
-
-- **Photos are stored on the server's own disk.** That doesn't survive restarts on most hosting and doesn't scale — a real app uses dedicated cloud storage. (My newer projects do exactly that, with S3-style object storage.)
-- **No automated tests.** Every change had to be checked by hand.
-- **The server both serves data and saves files** — these days I separate those concerns from the start.
-
-Those lessons are baked into my newer work — which is the whole point of keeping this project around.
+Open `http://localhost:5173` in your browser.
